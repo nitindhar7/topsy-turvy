@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content">
+<RelativeLayout android:id="@+id/RelativeLayout01" android:layout_width="fill_parent" android:layout_height="fill_parent"><TextView android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/profileMenuLabel" android:text="@string/profile_menu_label" android:textSize="40dp" android:gravity="center" android:layout_margin="10dp"></TextView><TextView android:layout_below="@+id/profileMenuLabel" android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/profileMenuNewLabel" android:text="@string/profile_menu_new_label" android:layout_marginLeft="10dp"></TextView>
+<EditText android:layout_height="wrap_content" android:layout_toRightOf="@+id/TextView01" android:id="@+id/profileMenuNewInput" android:layout_below="@+id/profileMenuNewLabel" android:text="@string/profile_menu_new_input" android:textColor="#CCC" android:layout_width="fill_parent" android:layout_margin="10dp"></EditText>
+<Button android:layout_height="wrap_content" android:layout_toRightOf="@+id/TextView01" android:layout_below="@+id/profileMenuNewInput" android:layout_width="wrap_content" android:id="@+id/profileMenuSaveButton" android:text="@string/profile_menu_save_button"></Button><TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_toRightOf="@+id/TextView01" android:id="@+id/profileMenuDeleteLabel" android:text="@string/profile_menu_delete_label" android:layout_marginLeft="10dp" android:layout_below="@+id/profileMenuSaveButton"></TextView>
+<ListView android:layout_below="@+id/profileMenuNewInput" android:layout_height="wrap_content" android:id="@+id/ListView01" android:layout_width="wrap_content" android:layout_toRightOf="@+id/TextView01"></ListView>
+
+</RelativeLayout>
+
+</LinearLayout>

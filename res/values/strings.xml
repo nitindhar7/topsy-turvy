@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_menu_save_button">Save</string>
+    <string name="profile_menu_delete_label">Delete Profile</string>
+    <string name="profile_menu_new_input">Name</string>
+    <string name="profile_menu_new_label">New Profile</string>
+    <string name="profile_menu_label">Profile</string>
+    <string name="testButton">test</string>
+    <string name="navigationBack">Back</string>
+    <string name="mainMenuSettings">More</string>
+    <string name="mainMenuMultiPlayer">Multiplayer</string>
+    <string name="mainMenuSinglePlayer">Singleplayer</string>
+    <string name="logo">Topsy Turvy</string>
+    
+    <string name="hello">Hello World, TopsyTurvy!</string>
+    <string name="app_name">TopsyTurvy</string>
+    <string name="no_users">No Users Yet</string>
+    <string name="menu_insert">Add User</string>
+<string name="titleMainMenu">Main Menu</string>
+<string-array name="settingsList">
+	<item>Profiles</item>
+	<item>Scores</item>
+	<item>Sound</item>
+	<item>Top Color</item>
+	<item>Table Color</item>
+	<item>Vibration</item>
+	<item>About</item>
+</string-array>
+</resources>

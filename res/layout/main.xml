@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+
+
+
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:id="@+id/logo" android:text="@string/logo" android:typeface="serif" android:paddingBottom="10dp" android:paddingTop="10dp" android:textSize="40dp"></TextView>
+
+
+
+
+
+
+<Button android:id="@+id/mainMenuSinglePlayer" android:text="@string/mainMenuSinglePlayer" android:layout_gravity="center" android:layout_width="fill_parent" android:layout_marginLeft="40dp" android:layout_marginRight="40dp" android:layout_height="50dp" android:layout_marginBottom="10dp"></Button><Button android:text="@string/mainMenuMultiPlayer" android:id="@+id/mainMenuMultiPlayer" android:layout_gravity="center" android:layout_width="fill_parent" android:layout_marginLeft="40dp" android:layout_marginRight="40dp" android:layout_height="50dp" android:layout_marginBottom="10dp"></Button><Button android:text="@string/mainMenuSettings" android:id="@+id/mainMenuSettings" android:layout_gravity="center" android:layout_width="fill_parent" android:layout_marginLeft="40dp" android:layout_marginRight="40dp" android:layout_height="50dp" android:layout_marginBottom="10dp"></Button>
+
+
+
+
+</LinearLayout>
