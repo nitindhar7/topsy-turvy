@@ -28,10 +28,10 @@ public class TopsyTurvyDbAdapter {
      */
     private static final String DATABASE_CREATE	= "CREATE TABLE " + DATABASE_TABLE + " (" +
 												  KEY_ROWID		  + " INTEGER NOT NULL, " +
-												  KEY_SOUND		  + " INTEGER NOT NULL, " +
-												  KEY_VIBRATION	  + " INTEGER NOT NULL, " +
+												  KEY_SOUND		  + " INTEGER DEFAULT 1 NOT NULL, " +
+												  KEY_VIBRATION	  + " INTEGER DEFAULT 1 NOT NULL, " +
 												  KEY_PAUSE	  	  + " INTEGER NOT NULL, " +
-												  KEY_USER		  + " INTEGER NOT NULL, " +
+												  KEY_USER		  + " INTEGER NULL, " +
 												  "PRIMARY KEY("  + KEY_ROWID + "), "+
 												  "FOREIGN KEY("  + KEY_USER  + ") REFERENCES user(_id));";
 	
@@ -124,15 +124,14 @@ public class TopsyTurvyDbAdapter {
     }
 
     /**
-     * Return a Cursor positioned at the game that matches the given rowId
+     * Return a Cursor positioned at the game
      * 
-     * @param rowId id of note to retrieve
      * @return Cursor positioned to matching note, if found
      * @throws SQLException if note could not be found/retrieved
      */
-    public Cursor fetchGame(long rowId) throws SQLException {
+    public Cursor fetchGame() throws SQLException {
 
-        Cursor mCursor = db.query(true, DATABASE_TABLE, new String[] {KEY_ROWID, KEY_SOUND, KEY_VIBRATION, KEY_PAUSE, KEY_USER}, KEY_ROWID + "=" + rowId, null, null, null, null, null);
+        Cursor mCursor = db.query(true, DATABASE_TABLE, new String[] {KEY_ROWID, KEY_SOUND, KEY_VIBRATION, KEY_PAUSE, KEY_USER}, KEY_ROWID + "=" + 1, null, null, null, null, null);
         if (mCursor != null) {
             mCursor.moveToFirst();
         }

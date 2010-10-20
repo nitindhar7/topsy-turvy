@@ -29,6 +29,21 @@ public class Settings extends ListActivity {
           public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         	  switch(position) {
         	  case 0:
+				  Intent profile = new Intent(Settings.this, Profile.class);
+				  startActivity(profile);
+				  break;
+        	  case 1:
+        		  break;
+        	  case 2:
+        		  break;
+        	  case 3:
+        		  break;
+        	  case 4:
+        		  break;
+        	  case 5:
+        		  break;
+        	  case 6:
+        		  break;
         	  }
           }
         });

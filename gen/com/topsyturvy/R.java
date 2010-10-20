@@ -27,7 +27,6 @@ public final class R {
         public static final int main_menu_singleplayer_icon=0x7f02000a;
     }
     public static final class id {
-        public static final int ListView01=0x7f06000b;
         public static final int RelativeLayout01=0x7f060004;
         public static final int TextView01=0x7f060007;
         public static final int logo=0x7f060000;
@@ -39,7 +38,7 @@ public final class R {
         public static final int profileMenuNewInput=0x7f060008;
         public static final int profileMenuNewLabel=0x7f060006;
         public static final int profileMenuSaveButton=0x7f060009;
-        public static final int text1=0x7f06000c;
+        public static final int text1=0x7f06000b;
     }
     public static final class layout {
         public static final int main=0x7f030000;
