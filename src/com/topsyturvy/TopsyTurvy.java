@@ -40,11 +40,6 @@ import android.view.Window;
 import android.widget.Button;
 
 public class TopsyTurvy extends Activity implements OnClickListener {
-
-	// Retrieve UI elements
-    private Button mainMenuSinglePlayerButton 	= (Button)findViewById(R.id.mainMenuSinglePlayer);
-    private Button mainMenuMultiPlayerButton 	= (Button)findViewById(R.id.mainMenuMultiPlayer);
-    private Button mainMenuSettingsButton 		= (Button)findViewById(R.id.mainMenuSettings);
     
     // Game settings
     private int sound;
@@ -57,17 +52,27 @@ public class TopsyTurvy extends Activity implements OnClickListener {
     // Create database instance
 	private TopsyTurvyDbAdapter dbAdapter;
 	
+	// UI elements
+	private Button mainMenuSinglePlayerButton;
+	private Button mainMenuMultiPlayerButton;
+	private Button mainMenuSettingsButton;
+	
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.main);
+        
+        // Retrieve UI elements
+        mainMenuSinglePlayerButton 	= (Button)findViewById(R.id.mainMenuSinglePlayer);
+        mainMenuMultiPlayerButton 	= (Button)findViewById(R.id.mainMenuMultiPlayer);
+        mainMenuSettingsButton 		= (Button)findViewById(R.id.mainMenuSettings);
         
         // Create and open db
         dbAdapter = new TopsyTurvyDbAdapter(this);
         dbAdapter.open();
         
         // Retrieve game settings
-        Cursor cursor = dbAdapter.fetchGame();
+        Cursor cursor = dbAdapter.find("game", 1);
         startManagingCursor(cursor);
         
 		// Define listeners
@@ -116,6 +121,8 @@ public class TopsyTurvy extends Activity implements OnClickListener {
      * Set the vibrator ON or OFF based on db setting
      */
     private void setVibrator() {
+    	vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+    	
     	if (vibration == 0)
     		vibrator.cancel();
     }

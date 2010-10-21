@@ -27,52 +27,73 @@
 
 package com.topsyturvy;
 
-import android.app.ListActivity;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.widget.ImageButton;
 
-public class Settings extends ListActivity {
+public class Settings extends Activity implements OnClickListener {
+	
+	// All purpose
+	Bundle bundle;
+	
+	// UI elements
+	private ImageButton moreMenuSwitchProfileButton;
+	private ImageButton moreMenuNewProfileButton;
+	private ImageButton moreMenuSingleplayerScoresButton;
+	private ImageButton moreMenuMultiplayerScoresButton;
+	private ImageButton moreMenuSingleplayerHintsButton;
+	private ImageButton moreMenuMultiplayerHintsButton;
+	
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.settings);
+        
+        // Retrieve UI elements
+        moreMenuSwitchProfileButton			= (ImageButton)findViewById(R.id.switchProfileButton);
+        moreMenuNewProfileButton			= (ImageButton)findViewById(R.id.newProfileButton);
+        moreMenuSingleplayerScoresButton	= (ImageButton)findViewById(R.id.singleplayerScoresButton);
+        moreMenuMultiplayerScoresButton		= (ImageButton)findViewById(R.id.multiplayerScoresButton);
+        moreMenuSingleplayerHintsButton		= (ImageButton)findViewById(R.id.singleplayerHintsButton);
+        moreMenuMultiplayerHintsButton		= (ImageButton)findViewById(R.id.multiplayerHintsButton);
+        
+        // Set listeners
+        moreMenuSwitchProfileButton.setOnClickListener(this);
+        moreMenuNewProfileButton.setOnClickListener(this);
+        moreMenuSingleplayerScoresButton.setOnClickListener(this);
+        moreMenuMultiplayerScoresButton.setOnClickListener(this);
+        moreMenuSingleplayerHintsButton.setOnClickListener(this);
+        moreMenuMultiplayerHintsButton.setOnClickListener(this);
+	}
 
-        // Retrieve settings given in "settingsList" string array
-        String[] settingsList = getResources().getStringArray(R.array.settingsList);
-        setListAdapter(new ArrayAdapter<String>(this, R.layout.settings, settingsList));
-
-        // Retrieve list view to display on the screen
-        // enable filtering the list items when user types text
-        ListView settingsListView = getListView();
-        settingsListView.setTextFilterEnabled(true);
-
-        // When user clicks a list item, fire this
-        settingsListView.setOnItemClickListener(new OnItemClickListener() {
-          public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        	  switch(position) {
-        	  case 0:
-				  Intent profile = new Intent(Settings.this, Profile.class);
-				  startActivity(profile);
-				  break;
-        	  case 1:
-        		  break;
-        	  case 2:
-        		  break;
-        	  case 3:
-        		  break;
-        	  case 4:
-        		  break;
-        	  case 5:
-        		  break;
-        	  case 6:
-        		  break;
-        	  }
-          }
-        });
+	public void onClick(View src) {
+		switch(src.getId()) {
+			case R.id.switchProfileButton:
+				Intent switchProfileIntent = new Intent(Settings.this, Profile.class);
+				switchProfileIntent.putExtra("intent", "switch");
+	        	startActivity(switchProfileIntent);
+				break;
+			case R.id.newProfileButton:
+				Intent newProfileIntent = new Intent(Settings.this, Profile.class);
+				newProfileIntent.putExtra("intent", "new");
+	        	startActivity(newProfileIntent);
+				break;
+			case R.id.singleplayerScoresButton:
+	        	startActivity(new Intent(Settings.this, Scores.class));
+				break;
+			case R.id.multiplayerScoresButton:
+	        	startActivity(new Intent(Settings.this, Scores.class));
+				break;
+			case R.id.singleplayerHintsButton:
+	        	startActivity(new Intent(Settings.this, Hints.class));
+				break;
+			case R.id.multiplayerHintsButton:
+	        	startActivity(new Intent(Settings.this, Hints.class));
+				break;
+		}
 	}
 }

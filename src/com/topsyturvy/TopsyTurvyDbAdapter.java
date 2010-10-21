@@ -33,34 +33,76 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+import android.widget.Toast;
 
 public class TopsyTurvyDbAdapter {
 	
-	public static final String KEY_ROWID		= "_id";
-	public static final String KEY_SOUND		= "sound";
-	public static final String KEY_VIBRATION	= "vibration";
-	public static final String KEY_PAUSE		= "pause";
-	public static final String KEY_USER			= "user";
-
-    private static final String DATABASE_NAME	= "topsy_turvy";
-    private static final String DATABASE_TABLE	= "game";
-    private static final int DATABASE_VERSION	= 2;
+	// Game table fields
+	public static final String KEY_GROWID			= "_id";
+	public static final String KEY_SOUND			= "sound";
+	public static final String KEY_VIBRATION		= "vibration";
+	public static final String KEY_PAUSE			= "pause";
+	public static final String KEY_GUSERID			= "user_id";
+	
+	// User table fields
+	public static final String KEY_UROWID			= "_id";
+	public static final String KEY_NAME				= "name";
+	
+	// Single Player table fields
+	public static final String KEY_SROWID			= "_id";
+    public static final String KEY_TOPSCORE			= "top_score";
+    public static final String KEY_SUSERID			= "user_id";
     
+    // Multiplayer table fields
+    public static final String KEY_MROWID			= "_id";
+    public static final String KEY_TOTALSCORE		= "total_score";
+    public static final String KEY_GAMESPLAYED		= "games_played";
+    public static final String KEY_MUSERID			= "user_id";
+
+    // DB specific
+    private static final String DATABASE_NAME		= "topsy_turvy";
+    private static final int DATABASE_VERSION		= 2;
+    
+    // Table names
+    private static final String DATABASE_GTABLE		= "game";
+    private static final String DATABASE_UTABLE		= "user";
+    private static final String DATABASE_STABLE		= "single_player";
+    private static final String DATABASE_MTABLE		= "multi_player";
+
     private DatabaseHelper dbHelper;
     private SQLiteDatabase db;
     private final Context ctx;
 
-    /*
-     * Database creation sql statement
-     */
-    private static final String DATABASE_CREATE	= "CREATE TABLE " + DATABASE_TABLE + " (" +
-												  KEY_ROWID		  + " INTEGER NOT NULL, " +
-												  KEY_SOUND		  + " INTEGER DEFAULT 1 NOT NULL, " +
-												  KEY_VIBRATION	  + " INTEGER DEFAULT 1 NOT NULL, " +
-												  KEY_PAUSE	  	  + " INTEGER NOT NULL, " +
-												  KEY_USER		  + " INTEGER NULL, " +
-												  "PRIMARY KEY("  + KEY_ROWID + "), "+
-												  "FOREIGN KEY("  + KEY_USER  + ") REFERENCES user(_id));";
+    // Game table creation
+    private static final String DATABASE_GCREATE	= "CREATE TABLE " + DATABASE_GTABLE + " (" +
+												  	  KEY_GROWID	  + " INTEGER AUTO_INCREMENT NOT NULL, " +
+												  	  KEY_SOUND		  + " INTEGER DEFAULT 1 NOT NULL, " +
+												  	  KEY_VIBRATION	  + " INTEGER DEFAULT 1 NOT NULL, " +
+												  	  KEY_PAUSE	  	  + " INTEGER NOT NULL, " +
+												  	  KEY_GUSERID	  + " INTEGER NOT NULL, " +
+												  	  "PRIMARY KEY("  + KEY_GROWID + "), "+
+												  	  "FOREIGN KEY("  + KEY_GUSERID  + ") REFERENCES user(_id));";
+    // User table creation
+    private static final String DATABASE_UCREATE	= "CREATE TABLE " + DATABASE_UTABLE + " (" +
+    												  KEY_UROWID	  + " INTEGER AUTO_INCREMENT NOT NULL, " +
+    												  KEY_NAME		  + " TEXT NOT NULL, " +
+    												  "PRIMARY KEY("  + KEY_UROWID + "));";
+    // Single Player table creation
+    private static final String DATABASE_SCREATE	= "CREATE TABLE " + DATABASE_STABLE + " (" +
+												      KEY_SROWID	  + " INTEGER AUTO_INCREMENT NOT NULL, " +
+												      KEY_TOPSCORE	  + " INTEGER DEFAULT 1 NOT NULL, " +
+												      KEY_SUSERID	  + " INTEGER NOT NULL, " +
+												      "PRIMARY KEY("  + KEY_SROWID + "), "+
+											          "FOREIGN KEY("  + KEY_SUSERID + ") REFERENCES user(_id));";
+    // Multi Player table creation
+    private static final String DATABASE_MCREATE	= "CREATE TABLE " + DATABASE_MTABLE + " (" +
+												      KEY_MROWID	  + " INTEGER AUTO_INCREMENT NOT NULL, " +
+												      KEY_TOTALSCORE  + " INTEGER DEFAULT 0 NOT NULL, " +
+												      KEY_GAMESPLAYED + " INTEGER DEFAULT 0 NOT NULL, " +
+												      KEY_MUSERID	  + " INTEGER NOT NULL, " +
+												      "PRIMARY KEY("  + KEY_MROWID + "), "+
+												      "FOREIGN KEY("  + KEY_MUSERID + ") REFERENCES user(_id));";
 	
 	private static class DatabaseHelper extends SQLiteOpenHelper {
 		DatabaseHelper(Context context) {
@@ -69,12 +111,18 @@ public class TopsyTurvyDbAdapter {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            db.execSQL(DATABASE_CREATE);
+            db.execSQL(DATABASE_GCREATE);
+            db.execSQL(DATABASE_UCREATE);
+            db.execSQL(DATABASE_SCREATE);
+            db.execSQL(DATABASE_MCREATE);
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            db.execSQL("DROP TABLE IF EXISTS game");
+            db.execSQL("DROP TABLE IF EXISTS " + DATABASE_GTABLE);
+            db.execSQL("DROP TABLE IF EXISTS " + DATABASE_UTABLE);
+            db.execSQL("DROP TABLE IF EXISTS " + DATABASE_STABLE);
+            db.execSQL("DROP TABLE IF EXISTS " + DATABASE_MTABLE);
             onCreate(db);
         }
 	}
@@ -115,56 +163,88 @@ public class TopsyTurvyDbAdapter {
      * successfully created return the new rowId for that note, otherwise return
      * a -1 to indicate failure.
      * 
+     * @param table		Table to insert to
      * @param sound		Sound setting: 0 = off, 1 = on
      * @param vibration Vibration setting: 0 = off, 1 = on
      * @param pause		Pause setting: 0 = unpaused, 1 = paused
-     * @param user		User foreign key (Currently active profile)
+     * @param user_id	User id foreign key (Currently active profile)
+     * @param name		Name for new user
      * @return			rowId or -1 if failed
      */
-    public long createGame(int sound, int vibration, int pause, int user) {
+    public long create(String table, int sound, int vibration, int pause, int user_id, String name) {
         ContentValues initialValues = new ContentValues();
-        initialValues.put(KEY_SOUND, sound);
-        initialValues.put(KEY_VIBRATION, vibration);
-        initialValues.put(KEY_PAUSE, pause);
-        initialValues.put(KEY_USER, user);
+        
+        Log.i("TOPSY", name);
+        
+        if (table.equals(DATABASE_GTABLE)) {
+        	initialValues.put(KEY_SOUND, sound);
+            initialValues.put(KEY_VIBRATION, vibration);
+            initialValues.put(KEY_PAUSE, pause);
+            initialValues.put(KEY_GUSERID, user_id);
+        }
+        else if (table.equals(DATABASE_UTABLE)) {
+        	Log.i("TOPSY", name);
+        	initialValues.put(KEY_NAME, name);
+        	// TODO: adding to user table also adds to singleplayer or multiplayer menu's
+        }
+        else {
+        	return -1;
+        }
 
-        return db.insert(DATABASE_TABLE, null, initialValues);
+        return db.insert(table, null, initialValues);
+    }
+    
+    
+    /**
+     * TODO: refactor to have just one Find method which returns 1 or all records based on parameter
+     * Return a Cursor over one object
+     * 
+     * @param table	Name of table to retrieve record from
+     * @param rowId Id for record row
+     * @return		Cursor over one object or null
+     */
+    public Cursor find(String table, int rowId) {
+    	Cursor mCursor;
+    	
+    	if (table == "game") {
+    		mCursor = db.query(true, DATABASE_GTABLE, new String[] {KEY_GROWID, KEY_SOUND, KEY_VIBRATION, KEY_PAUSE, KEY_GUSERID}, KEY_GROWID + "=" + rowId, null, null, null, null, null);
+    		mCursor.moveToFirst();
+    		return mCursor;
+    	}
+    	else if (table == "user") {
+    		mCursor = db.query(true, DATABASE_UTABLE, new String[] {KEY_UROWID, KEY_NAME}, KEY_UROWID + "=" + rowId, null, null, null, null, null);
+    		mCursor.moveToFirst();
+    		return mCursor;
+    	}
+    	// TODO: find for single_player and multiplayer tables
+    	else {
+    		return null;
+    	}
     }
     
     /**
-     * Delete the game with the given rowId
+     * Return a Cursor over the list of all objects
      * 
-     * @param rowId id of note to delete
-     * @return true if deleted, false otherwise
+     * @param table	Name of table to retrieve record from
+     * @return 		Cursor over all users and scores
      */
-    public boolean deleteGame(long rowId) {
-        return db.delete(DATABASE_TABLE, KEY_ROWID + "=" + rowId, null) > 0;
+    public Cursor findAll(String table) {
+    	Cursor mCursor;
+    	
+    	if (table == "game") {
+    		mCursor = db.query(DATABASE_GTABLE, new String[] {KEY_GROWID, KEY_SOUND, KEY_VIBRATION, KEY_PAUSE, KEY_GUSERID}, null, null, null, null, null);
+    		return mCursor;
+    	}
+    	else if (table == "user") {
+    		mCursor = db.query(DATABASE_UTABLE, new String[] {KEY_UROWID, KEY_NAME}, null, null, null, null, null);
+    		return mCursor;
+    	}
+    	// TODO: findAll for single_player and multi_player tables
+    	else {
+    		return null;
+    	}
     }
-
-    /**
-     * Return a Cursor over the list of all notes in the database
-     * 
-     * @return Cursor over all notes
-     */
-    public Cursor fetchGames() {
-        return db.query(DATABASE_TABLE, new String[] {KEY_ROWID, KEY_SOUND, KEY_VIBRATION, KEY_PAUSE, KEY_USER}, null, null, null, null, null);
-    }
-
-    /**
-     * Return a Cursor positioned at the game
-     * 
-     * @return Cursor positioned to matching note, if found
-     * @throws SQLException if note could not be found/retrieved
-     */
-    public Cursor fetchGame() throws SQLException {
-
-        Cursor mCursor = db.query(true, DATABASE_TABLE, new String[] {KEY_ROWID, KEY_SOUND, KEY_VIBRATION, KEY_PAUSE, KEY_USER}, KEY_ROWID + "=" + 1, null, null, null, null, null);
-        if (mCursor != null) {
-            mCursor.moveToFirst();
-        }
-        return mCursor;
-    }
-
+    
     /**
      * Update the note using the details provided. The note to be updated is
      * specified using the rowId, and it is altered to use the title and body
@@ -177,13 +257,40 @@ public class TopsyTurvyDbAdapter {
      * @param rowId		Row ID of the game to be updated
      * @return true if the note was successfully updated, false otherwise
      */
-    public boolean updateGame(long rowId, int sound, int vibration, int pause, int user) {
+    public boolean update(String table, long rowId, int sound, int vibration, int pause, int user_id, String name) {
         ContentValues args = new ContentValues();
-        args.put(KEY_SOUND, sound);
-        args.put(KEY_VIBRATION, vibration);
-        args.put(KEY_PAUSE, pause);
-        args.put(KEY_USER, user);
+        
+        if (table == "game") {
+        	args.put(KEY_SOUND, sound);
+            args.put(KEY_VIBRATION, vibration);
+            args.put(KEY_PAUSE, pause);
+            args.put(KEY_GUSERID, user_id);
+            return db.update(DATABASE_GTABLE, args, KEY_GROWID + "=" + rowId, null) > 0;
+        }
+        else if (table == "user") {
+        	args.put(KEY_NAME, name);
+            return db.update(DATABASE_UTABLE, args, KEY_UROWID + "=" + rowId, null) > 0;
+        }
+        // TODO: single and multi player tables
+        else {
+        	return false;
+        }
+    }
 
-        return db.update(DATABASE_TABLE, args, KEY_ROWID + "=" + rowId, null) > 0;
+    /**
+     * Delete the game with the given rowId
+     * 
+     * @param table Table to delete from
+     * @param rowId Id of note to delete
+     * @return 		True if deleted, false otherwise
+     */
+    public boolean delete(String table, long rowId) {
+    	if (table == "game")
+    		return db.delete(DATABASE_GTABLE, KEY_GROWID + "=" + rowId, null) > 0;
+    	else if (table == "user")
+    		// TODO: also delete from single or multiplayer table
+    		return db.delete(DATABASE_UTABLE, KEY_UROWID + "=" + rowId, null) > 0;
+    	else
+    		return false;
     }
 }

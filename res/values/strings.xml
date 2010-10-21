@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="sound_label">Sound</string>
     <string name="profile_menu_save_button">Save</string>
     <string name="profile_menu_delete_label">Delete Profile</string>
     <string name="profile_menu_new_input">Name</string>

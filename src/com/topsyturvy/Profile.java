@@ -27,14 +27,85 @@
 
 package com.topsyturvy;
 
-import android.app.ListActivity;
+import android.app.Activity;
+import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.view.View.OnClickListener;
+import android.view.View;
 import android.view.Window;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
-public class Profile extends ListActivity {
+public class Profile extends Activity implements OnClickListener {
+	
+	// local
+	private String intent;
+	
+	// Create database instance
+	private TopsyTurvyDbAdapter dbAdapter;
+	
+	// UI elements
+	private EditText enterUser;
+	private Button saveUser;
+	
+	// Store player name
+	private String userName;
+	
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.profile);
+        
+        // retrieve parameters
+        intent = this.getIntent().getStringExtra("intent");
+        
+        // Create and open db
+        dbAdapter = new TopsyTurvyDbAdapter(this);
+        dbAdapter.open();
+        
+        // Retrieve game settings
+        Cursor cursor = dbAdapter.find("game", 1);
+        startManagingCursor(cursor);
+        
+        // Display layout based on intent
+    	if (intent.equals("new")) {
+    		setContentView(R.layout.add_profile);
+    		
+    		// Retrieve UI elements
+            enterUser	= (EditText)findViewById(R.id.enter_user);
+            saveUser	= (Button)findViewById(R.id.save_user);
+        	
+            // Define listeners
+    		saveUser.setOnClickListener(this);
+    	}
+    	else if (intent.equals("switch")) {
+    		setContentView(R.layout.switch_profile);
+    	}
+    	else {
+    		// TODO: error
+    	}
+	}
+	
+	public void onClick(View src) {
+		switch(src.getId()) {
+			case R.id.save_user:
+				long rowId;
+	    		Toast toast;
+	    		
+				userName = enterUser.getText().toString();
+
+	    		rowId = dbAdapter.create("user", 0, 0, 0, 0, userName);
+	    		
+	    		if (rowId == -1) {
+	    			toast = Toast.makeText(Profile.this, "User Not Created", 5);
+					toast.show();
+	    		}
+	    		else {
+	    			toast = Toast.makeText(Profile.this, "User Created", 5);
+					toast.show();
+	    		}
+				break;
+		}
 	}
 }

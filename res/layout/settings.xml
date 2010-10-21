@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="fill_parent"
-  android:layout_height="fill_parent" android:paddingLeft="10dp" android:paddingRight="10dp" android:height="50dp" android:textSize="16dp" android:paddingTop="17dp">
-</TextView>
+<RelativeLayout android:id="@+id/RelativeLayout01" android:layout_width="fill_parent" android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android" android:background="@drawable/more_menu_bg">
+
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/soundLabel" android:height="50dp" android:textColor="#FFF" android:textSize="30dp" android:textStyle="bold" android:background="@drawable/sound" android:layout_marginTop="50dp" android:layout_marginLeft="55dp"></TextView><ToggleButton android:layout_width="wrap_content" android:text="@+id/ToggleButton01" android:layout_height="wrap_content" android:id="@+id/soundButton" android:layout_toRightOf="@+id/soundLabel" android:height="50dp" android:layout_marginTop="40dp"></ToggleButton>
+<ImageButton android:layout_below="@+id/soundButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/switchProfileButton" android:layout_toRightOf="@+id/profileLabel" android:maxHeight="50dp" android:layout_marginTop="15dp" android:background="@drawable/switch_button"></ImageButton><TextView android:layout_width="wrap_content" android:layout_below="@+id/soundButton" android:layout_height="wrap_content" android:id="@+id/profileLabel" android:layout_toRightOf="@+id/newProfileButton" android:height="50dp" android:background="@drawable/profile" android:layout_marginTop="40dp"></TextView><ImageButton android:layout_below="@+id/soundButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/newProfileButton" android:maxHeight="50dp" android:layout_marginTop="15dp" android:layout_marginLeft="40dp" android:background="@drawable/new_button"></ImageButton>
+<ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/singleplayerScoresButton" android:layout_below="@+id/newProfileButton" android:maxHeight="50dp" android:layout_marginLeft="40dp" android:background="@drawable/sp"></ImageButton><TextView android:layout_width="wrap_content" android:layout_below="@+id/newProfileButton" android:layout_height="wrap_content" android:id="@+id/scoresLabel" android:layout_toRightOf="@+id/singleplayerScoresButton" android:height="50dp" android:background="@drawable/scores" android:layout_marginTop="30dp"></TextView><ImageButton android:layout_below="@+id/newProfileButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/multiplayerScoresButton" android:layout_toRightOf="@+id/scoresLabel" android:maxHeight="50dp" android:background="@drawable/mp"></ImageButton><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/singleplayerHintsButton" android:layout_below="@+id/singleplayerScoresButton" android:maxHeight="50dp" android:layout_marginLeft="40dp" android:background="@drawable/sp"></ImageButton><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/hintsLabel" android:layout_toRightOf="@+id/singleplayerHintsButton" android:layout_below="@+id/singleplayerScoresButton" android:height="50dp" android:background="@drawable/hints" android:layout_marginTop="30dp"></TextView><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/multiplayerHintsButton" android:layout_toRightOf="@+id/hintsLabel" android:layout_below="@+id/multiplayerScoresButton" android:maxHeight="50dp" android:background="@drawable/mp"></ImageButton>
+
+
+
+
+
+
+
+
+</RelativeLayout>
