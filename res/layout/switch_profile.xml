@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="wrap_content"
-  android:layout_height="wrap_content">
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_height="fill_parent"
+	android:layout_width="fill_parent"
+	android:background="@drawable/switch_bg">
+	<RelativeLayout android:id="@+id/RelativeLayout01" android:layout_width="wrap_content" android:layout_height="wrap_content"><TextView android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/blank" android:height="100dp"></TextView><ListView android:layout_height="fill_parent" android:layout_width="fill_parent" android:id="@+id/android:list" android:layout_below="@+id/blank">
+</ListView></RelativeLayout>
+
 </LinearLayout>

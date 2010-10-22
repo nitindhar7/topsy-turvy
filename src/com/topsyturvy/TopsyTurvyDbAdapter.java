@@ -34,7 +34,6 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-import android.widget.Toast;
 
 public class TopsyTurvyDbAdapter {
 	
@@ -76,33 +75,26 @@ public class TopsyTurvyDbAdapter {
 
     // Game table creation
     private static final String DATABASE_GCREATE	= "CREATE TABLE " + DATABASE_GTABLE + " (" +
-												  	  KEY_GROWID	  + " INTEGER AUTO_INCREMENT NOT NULL, " +
+												  	  KEY_GROWID	  + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
 												  	  KEY_SOUND		  + " INTEGER DEFAULT 1 NOT NULL, " +
 												  	  KEY_VIBRATION	  + " INTEGER DEFAULT 1 NOT NULL, " +
 												  	  KEY_PAUSE	  	  + " INTEGER NOT NULL, " +
-												  	  KEY_GUSERID	  + " INTEGER NOT NULL, " +
-												  	  "PRIMARY KEY("  + KEY_GROWID + "), "+
-												  	  "FOREIGN KEY("  + KEY_GUSERID  + ") REFERENCES user(_id));";
+												  	  KEY_GUSERID	  + " INTEGER NOT NULL);";
     // User table creation
     private static final String DATABASE_UCREATE	= "CREATE TABLE " + DATABASE_UTABLE + " (" +
-    												  KEY_UROWID	  + " INTEGER AUTO_INCREMENT NOT NULL, " +
-    												  KEY_NAME		  + " TEXT NOT NULL, " +
-    												  "PRIMARY KEY("  + KEY_UROWID + "));";
+    												  KEY_UROWID	  + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+    												  KEY_NAME		  + " TEXT NULL);";
     // Single Player table creation
     private static final String DATABASE_SCREATE	= "CREATE TABLE " + DATABASE_STABLE + " (" +
-												      KEY_SROWID	  + " INTEGER AUTO_INCREMENT NOT NULL, " +
+												      KEY_SROWID	  + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
 												      KEY_TOPSCORE	  + " INTEGER DEFAULT 1 NOT NULL, " +
-												      KEY_SUSERID	  + " INTEGER NOT NULL, " +
-												      "PRIMARY KEY("  + KEY_SROWID + "), "+
-											          "FOREIGN KEY("  + KEY_SUSERID + ") REFERENCES user(_id));";
+												      KEY_SUSERID	  + " INTEGER NOT NULL);";
     // Multi Player table creation
     private static final String DATABASE_MCREATE	= "CREATE TABLE " + DATABASE_MTABLE + " (" +
-												      KEY_MROWID	  + " INTEGER AUTO_INCREMENT NOT NULL, " +
+												      KEY_MROWID	  + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
 												      KEY_TOTALSCORE  + " INTEGER DEFAULT 0 NOT NULL, " +
 												      KEY_GAMESPLAYED + " INTEGER DEFAULT 0 NOT NULL, " +
-												      KEY_MUSERID	  + " INTEGER NOT NULL, " +
-												      "PRIMARY KEY("  + KEY_MROWID + "), "+
-												      "FOREIGN KEY("  + KEY_MUSERID + ") REFERENCES user(_id));";
+												      KEY_MUSERID	  + " INTEGER NOT NULL);";
 	
 	private static class DatabaseHelper extends SQLiteOpenHelper {
 		DatabaseHelper(Context context) {
@@ -174,24 +166,21 @@ public class TopsyTurvyDbAdapter {
     public long create(String table, int sound, int vibration, int pause, int user_id, String name) {
         ContentValues initialValues = new ContentValues();
         
-        Log.i("TOPSY", name);
-        
         if (table.equals(DATABASE_GTABLE)) {
         	initialValues.put(KEY_SOUND, sound);
             initialValues.put(KEY_VIBRATION, vibration);
             initialValues.put(KEY_PAUSE, pause);
             initialValues.put(KEY_GUSERID, user_id);
+            return db.insert(table, null, initialValues);
         }
         else if (table.equals(DATABASE_UTABLE)) {
-        	Log.i("TOPSY", name);
         	initialValues.put(KEY_NAME, name);
+        	return db.insert(table, null, initialValues);
         	// TODO: adding to user table also adds to singleplayer or multiplayer menu's
         }
         else {
         	return -1;
         }
-
-        return db.insert(table, null, initialValues);
     }
     
     
@@ -237,6 +226,7 @@ public class TopsyTurvyDbAdapter {
     	}
     	else if (table == "user") {
     		mCursor = db.query(DATABASE_UTABLE, new String[] {KEY_UROWID, KEY_NAME}, null, null, null, null, null);
+    		Log.i("TOPSY", "finding all");
     		return mCursor;
     	}
     	// TODO: findAll for single_player and multi_player tables

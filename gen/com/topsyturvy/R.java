@@ -34,21 +34,24 @@ public final class R {
         public static final int main_menu_play=0x7f020011;
         public static final int main_menu_singleplayer_icon=0x7f020012;
         public static final int more_menu_bg=0x7f020013;
-        public static final int mp=0x7f020014;
+        public static final int multiplayer=0x7f020014;
         public static final int new_button=0x7f020015;
         public static final int profile=0x7f020016;
         public static final int save_profile=0x7f020017;
         public static final int scores=0x7f020018;
-        public static final int sound=0x7f020019;
-        public static final int sp=0x7f02001a;
-        public static final int switch_button=0x7f02001b;
+        public static final int singleplayer=0x7f020019;
+        public static final int sound=0x7f02001a;
+        public static final int switch_bg=0x7f02001b;
+        public static final int switch_button=0x7f02001c;
     }
     public static final class id {
         public static final int RelativeLayout01=0x7f060003;
         public static final int TextView01=0x7f060000;
         public static final int ToggleButton01=0x7f06000e;
+        public static final int blank=0x7f060019;
         public static final int enter_user=0x7f060001;
         public static final int hintsLabel=0x7f060017;
+        public static final int listuser=0x7f06001a;
         public static final int logo=0x7f060004;
         public static final int mainMenuMultiPlayer=0x7f060006;
         public static final int mainMenuSettings=0x7f060007;
@@ -69,7 +72,6 @@ public final class R {
         public static final int soundButton=0x7f06000f;
         public static final int soundLabel=0x7f06000d;
         public static final int switchProfileButton=0x7f060010;
-        public static final int text1=0x7f060019;
     }
     public static final class layout {
         public static final int add_profile=0x7f030000;

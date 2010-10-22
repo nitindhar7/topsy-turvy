@@ -27,18 +27,19 @@
 
 package com.topsyturvy;
 
-import android.app.Activity;
+import android.app.ListActivity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.view.View.OnClickListener;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 
-public class Profile extends Activity implements OnClickListener {
+public class Profile extends ListActivity implements OnClickListener {
 	
 	// local
 	private String intent;
@@ -80,7 +81,16 @@ public class Profile extends Activity implements OnClickListener {
     		saveUser.setOnClickListener(this);
     	}
     	else if (intent.equals("switch")) {
-    		setContentView(R.layout.switch_profile);
+    		// Get all of the notes from the database and create the item list
+            Cursor c = dbAdapter.findAll("user");
+            startManagingCursor(c);
+
+            String[] from = new String[] { TopsyTurvyDbAdapter.KEY_NAME };
+            int[] to = new int[] { R.id.listuser };
+            
+            // Now create an array adapter and set it to display using our row
+            SimpleCursorAdapter users = new SimpleCursorAdapter(this, R.layout.switch_profile, c, from, to);
+            setListAdapter(users);
     	}
     	else {
     		// TODO: error
@@ -91,21 +101,30 @@ public class Profile extends Activity implements OnClickListener {
 		switch(src.getId()) {
 			case R.id.save_user:
 				long rowId;
-	    		Toast toast;
-	    		
+
 				userName = enterUser.getText().toString();
 
 	    		rowId = dbAdapter.create("user", 0, 0, 0, 0, userName);
 	    		
+	    		// unsuccessful
 	    		if (rowId == -1) {
-	    			toast = Toast.makeText(Profile.this, "User Not Created", 5);
-					toast.show();
+	    			setResult(-1);
+	        	    finish();
 	    		}
+	    		// successful
 	    		else {
-	    			toast = Toast.makeText(Profile.this, "User Created", 5);
-					toast.show();
+	    			setResult(0);
+	    			finish();
 	    		}
 				break;
 		}
 	}
+	
+	@Override
+    protected void onListItemClick(ListView l, View v, int position, long id) {
+        super.onListItemClick(l, v, position, id);
+        
+        // TODO: switch user (in game table)
+        // TODO: jump back to settings menu
+    }
 }

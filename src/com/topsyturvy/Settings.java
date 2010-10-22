@@ -34,6 +34,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 public class Settings extends Activity implements OnClickListener {
 	
@@ -75,12 +76,12 @@ public class Settings extends Activity implements OnClickListener {
 			case R.id.switchProfileButton:
 				Intent switchProfileIntent = new Intent(Settings.this, Profile.class);
 				switchProfileIntent.putExtra("intent", "switch");
-	        	startActivity(switchProfileIntent);
+	        	startActivityForResult(switchProfileIntent, 0);
 				break;
 			case R.id.newProfileButton:
 				Intent newProfileIntent = new Intent(Settings.this, Profile.class);
 				newProfileIntent.putExtra("intent", "new");
-	        	startActivity(newProfileIntent);
+	        	startActivityForResult(newProfileIntent, 0);
 				break;
 			case R.id.singleplayerScoresButton:
 	        	startActivity(new Intent(Settings.this, Scores.class));
@@ -96,4 +97,22 @@ public class Settings extends Activity implements OnClickListener {
 				break;
 		}
 	}
+	
+	@Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        
+        Toast toast;
+        
+        switch (resultCode) {
+        case 0:
+        	toast = Toast.makeText(Settings.this, "User Created", 5);
+			toast.show();
+        	break;
+        case -1:
+        	toast = Toast.makeText(Settings.this, "User Not Created", 5);
+			toast.show();
+        	break;
+        }
+    }
 }
