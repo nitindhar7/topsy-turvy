@@ -17,6 +17,7 @@
     <string name="app_name">TopsyTurvy</string>
     <string name="no_users">No Users Yet</string>
     <string name="menu_insert">Add User</string>
+    <string name="menu_delete">Remove User</string>
 <string name="titleMainMenu">Main Menu</string>
 <string-array name="settingsList">
 	<item>Profiles</item>

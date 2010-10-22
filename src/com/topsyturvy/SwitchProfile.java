@@ -30,38 +30,70 @@ package com.topsyturvy;
 import android.app.ListActivity;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
-public class Scores extends ListActivity {
+public class SwitchProfile extends ListActivity {
 	
 	// Create database instance
 	private TopsyTurvyDbAdapter dbAdapter;
 	
-	// which mode
-	private String intent;
-	
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.switch_profile);
         
-        intent = this.getIntent().getStringExtra("mode");
-        if (intent.equals("singleplayer")) {
-        	setContentView(R.layout.single_player);
-        }
-        else {
-        	setContentView(R.layout.multi_player);
-        }
-
         // Create and open db
         dbAdapter = new TopsyTurvyDbAdapter(this);
         dbAdapter.open();
+    
+    	populateList();
 
-        populateList();
-        
         // Register menu, used for long press delete
         registerForContextMenu(getListView());
 	}
+	
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+        // TODO: switch user (in game table)
+        // TODO: jump back to settings menu
+    }
+	
+	/**
+	 * Create menu for long press and keyboard menu button
+	 * 
+	 * @param menu Context menu that was registered for this activity
+	 * @param v View attached to context menu
+	 * @param menuInfo Details about each menu item
+	 */
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        menu.add(0, Menu.FIRST + 1, 0, R.string.menu_delete);
+    }
+	
+	/**
+	 * Create menu when list item long pressed
+	 * Opens a box to remove user.
+	 * 
+	 * @param item Menu item that was pressed
+	 * @return True if user deleted and list repopulated; false otherwise 
+	 */
+    public boolean onContextItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case Menu.FIRST + 1:
+                AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+                dbAdapter.delete("user", info.id);
+                populateList();
+                return true;
+        }
+        return super.onContextItemSelected(item);
+    }
 	
 	/**
 	 * Retreive all user names, put into array, insert each element into textview

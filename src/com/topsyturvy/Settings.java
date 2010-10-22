@@ -73,21 +73,23 @@ public class Settings extends Activity implements OnClickListener {
 
 	public void onClick(View src) {
 		switch(src.getId()) {
-			case R.id.switchProfileButton:
-				Intent switchProfileIntent = new Intent(Settings.this, Profile.class);
-				switchProfileIntent.putExtra("intent", "switch");
-	        	startActivityForResult(switchProfileIntent, 0);
-				break;
 			case R.id.newProfileButton:
-				Intent newProfileIntent = new Intent(Settings.this, Profile.class);
-				newProfileIntent.putExtra("intent", "new");
+				Intent newProfileIntent = new Intent(Settings.this, AddProfile.class);
 	        	startActivityForResult(newProfileIntent, 0);
 				break;
+			case R.id.switchProfileButton:
+				Intent switchProfileIntent = new Intent(Settings.this, SwitchProfile.class);
+	        	startActivityForResult(switchProfileIntent, 0);
+				break;
 			case R.id.singleplayerScoresButton:
-	        	startActivity(new Intent(Settings.this, Scores.class));
+				Intent singleplayerScoresIntent = new Intent(Settings.this, Scores.class);
+				singleplayerScoresIntent.putExtra("mode", "singleplayer");
+	        	startActivityForResult(singleplayerScoresIntent, 0);
 				break;
 			case R.id.multiplayerScoresButton:
-	        	startActivity(new Intent(Settings.this, Scores.class));
+				Intent multiplayerScoresIntent = new Intent(Settings.this, Scores.class);
+				multiplayerScoresIntent.putExtra("mode", "multiplayer");
+	        	startActivityForResult(multiplayerScoresIntent, 0);
 				break;
 			case R.id.singleplayerHintsButton:
 	        	startActivity(new Intent(Settings.this, Hints.class));

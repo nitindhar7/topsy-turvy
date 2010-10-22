@@ -38,50 +38,57 @@ public final class R {
         public static final int new_button=0x7f020015;
         public static final int profile=0x7f020016;
         public static final int save_profile=0x7f020017;
-        public static final int scores=0x7f020018;
-        public static final int singleplayer=0x7f020019;
-        public static final int sound=0x7f02001a;
-        public static final int switch_bg=0x7f02001b;
-        public static final int switch_button=0x7f02001c;
+        public static final int scoreboard=0x7f020018;
+        public static final int scores=0x7f020019;
+        public static final int singleplayer=0x7f02001a;
+        public static final int sound=0x7f02001b;
+        public static final int switch_bg=0x7f02001c;
+        public static final int switch_button=0x7f02001d;
     }
     public static final class id {
-        public static final int RelativeLayout01=0x7f060003;
+        public static final int RelativeLayout01=0x7f060004;
         public static final int TextView01=0x7f060000;
-        public static final int ToggleButton01=0x7f06000e;
-        public static final int blank=0x7f060019;
-        public static final int enter_user=0x7f060001;
-        public static final int hintsLabel=0x7f060017;
-        public static final int listuser=0x7f06001a;
-        public static final int logo=0x7f060004;
-        public static final int mainMenuMultiPlayer=0x7f060006;
-        public static final int mainMenuSettings=0x7f060007;
-        public static final int mainMenuSinglePlayer=0x7f060005;
-        public static final int multiplayerHintsButton=0x7f060018;
-        public static final int multiplayerScoresButton=0x7f060015;
-        public static final int newProfileButton=0x7f060012;
-        public static final int profileLabel=0x7f060011;
-        public static final int profileMenuDeleteLabel=0x7f06000c;
-        public static final int profileMenuLabel=0x7f060008;
-        public static final int profileMenuNewInput=0x7f06000a;
-        public static final int profileMenuNewLabel=0x7f060009;
-        public static final int profileMenuSaveButton=0x7f06000b;
-        public static final int save_user=0x7f060002;
-        public static final int scoresLabel=0x7f060014;
-        public static final int singleplayerHintsButton=0x7f060016;
-        public static final int singleplayerScoresButton=0x7f060013;
-        public static final int soundButton=0x7f06000f;
-        public static final int soundLabel=0x7f06000d;
-        public static final int switchProfileButton=0x7f060010;
+        public static final int TextView02=0x7f060001;
+        public static final int ToggleButton01=0x7f060010;
+        public static final int blank=0x7f06001e;
+        public static final int enter_user=0x7f060002;
+        public static final int hintsLabel=0x7f06001c;
+        public static final int hintsSettings=0x7f06001a;
+        public static final int listuser=0x7f06001f;
+        public static final int logo=0x7f060005;
+        public static final int mainMenuMultiPlayer=0x7f060007;
+        public static final int mainMenuSettings=0x7f060008;
+        public static final int mainMenuSinglePlayer=0x7f060006;
+        public static final int multiplayerHintsButton=0x7f06001d;
+        public static final int multiplayerScoresButton=0x7f060019;
+        public static final int newProfileButton=0x7f060015;
+        public static final int profileLabel=0x7f060014;
+        public static final int profileMenuDeleteLabel=0x7f06000d;
+        public static final int profileMenuLabel=0x7f060009;
+        public static final int profileMenuNewInput=0x7f06000b;
+        public static final int profileMenuNewLabel=0x7f06000a;
+        public static final int profileMenuSaveButton=0x7f06000c;
+        public static final int profileSettings=0x7f060012;
+        public static final int save_user=0x7f060003;
+        public static final int scoresLabel=0x7f060016;
+        public static final int scoresSettings=0x7f060017;
+        public static final int singleplayerHintsButton=0x7f06001b;
+        public static final int singleplayerScoresButton=0x7f060018;
+        public static final int soundButton=0x7f060011;
+        public static final int soundLabel=0x7f06000f;
+        public static final int soundSettings=0x7f06000e;
+        public static final int switchProfileButton=0x7f060013;
     }
     public static final class layout {
         public static final int add_profile=0x7f030000;
         public static final int main=0x7f030001;
-        public static final int profile=0x7f030002;
-        public static final int settings=0x7f030003;
-        public static final int single_player=0x7f030004;
-        public static final int switch_profile=0x7f030005;
-        public static final int user_list=0x7f030006;
-        public static final int users_row=0x7f030007;
+        public static final int multi_player=0x7f030002;
+        public static final int profile=0x7f030003;
+        public static final int settings=0x7f030004;
+        public static final int single_player=0x7f030005;
+        public static final int switch_profile=0x7f030006;
+        public static final int user_list=0x7f030007;
+        public static final int users_row=0x7f030008;
     }
     public static final class string {
         public static final int app_name=0x7f04000d;
@@ -90,6 +97,7 @@ public final class R {
         public static final int mainMenuMultiPlayer=0x7f040009;
         public static final int mainMenuSettings=0x7f040008;
         public static final int mainMenuSinglePlayer=0x7f04000a;
+        public static final int menu_delete=0x7f040010;
         public static final int menu_insert=0x7f04000f;
         public static final int navigationBack=0x7f040007;
         public static final int no_users=0x7f04000e;
@@ -100,6 +108,6 @@ public final class R {
         public static final int profile_menu_save_button=0x7f040001;
         public static final int sound_label=0x7f040000;
         public static final int testButton=0x7f040006;
-        public static final int titleMainMenu=0x7f040010;
+        public static final int titleMainMenu=0x7f040011;
     }
 }

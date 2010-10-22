@@ -33,7 +33,6 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 public class TopsyTurvyDbAdapter {
 	
@@ -195,12 +194,12 @@ public class TopsyTurvyDbAdapter {
     public Cursor find(String table, int rowId) {
     	Cursor mCursor;
     	
-    	if (table == "game") {
+    	if (table.equals("game")) {
     		mCursor = db.query(true, DATABASE_GTABLE, new String[] {KEY_GROWID, KEY_SOUND, KEY_VIBRATION, KEY_PAUSE, KEY_GUSERID}, KEY_GROWID + "=" + rowId, null, null, null, null, null);
     		mCursor.moveToFirst();
     		return mCursor;
     	}
-    	else if (table == "user") {
+    	else if (table.equals("user")) {
     		mCursor = db.query(true, DATABASE_UTABLE, new String[] {KEY_UROWID, KEY_NAME}, KEY_UROWID + "=" + rowId, null, null, null, null, null);
     		mCursor.moveToFirst();
     		return mCursor;
@@ -217,17 +216,12 @@ public class TopsyTurvyDbAdapter {
      * @param table	Name of table to retrieve record from
      * @return 		Cursor over all users and scores
      */
-    public Cursor findAll(String table) {
-    	Cursor mCursor;
-    	
-    	if (table == "game") {
-    		mCursor = db.query(DATABASE_GTABLE, new String[] {KEY_GROWID, KEY_SOUND, KEY_VIBRATION, KEY_PAUSE, KEY_GUSERID}, null, null, null, null, null);
-    		return mCursor;
+    public Cursor findAll(String table) {    	
+    	if (table.equals("game")) {
+    		return db.query(DATABASE_GTABLE, new String[] {KEY_GROWID, KEY_SOUND, KEY_VIBRATION, KEY_PAUSE, KEY_GUSERID}, null, null, null, null, null);
     	}
-    	else if (table == "user") {
-    		mCursor = db.query(DATABASE_UTABLE, new String[] {KEY_UROWID, KEY_NAME}, null, null, null, null, null);
-    		Log.i("TOPSY", "finding all");
-    		return mCursor;
+    	else if (table.equals("user")) {
+    		return db.query(DATABASE_UTABLE, new String[] {KEY_UROWID, KEY_NAME}, null, null, null, null, null);
     	}
     	// TODO: findAll for single_player and multi_player tables
     	else {
@@ -250,14 +244,14 @@ public class TopsyTurvyDbAdapter {
     public boolean update(String table, long rowId, int sound, int vibration, int pause, int user_id, String name) {
         ContentValues args = new ContentValues();
         
-        if (table == "game") {
+        if (table.equals("game")) {
         	args.put(KEY_SOUND, sound);
             args.put(KEY_VIBRATION, vibration);
             args.put(KEY_PAUSE, pause);
             args.put(KEY_GUSERID, user_id);
             return db.update(DATABASE_GTABLE, args, KEY_GROWID + "=" + rowId, null) > 0;
         }
-        else if (table == "user") {
+        else if (table.equals("user")) {
         	args.put(KEY_NAME, name);
             return db.update(DATABASE_UTABLE, args, KEY_UROWID + "=" + rowId, null) > 0;
         }
@@ -275,12 +269,30 @@ public class TopsyTurvyDbAdapter {
      * @return 		True if deleted, false otherwise
      */
     public boolean delete(String table, long rowId) {
-    	if (table == "game")
+    	if (table.equals("game"))
     		return db.delete(DATABASE_GTABLE, KEY_GROWID + "=" + rowId, null) > 0;
-    	else if (table == "user")
+    	else if (table.equals("user"))
     		// TODO: also delete from single or multiplayer table
     		return db.delete(DATABASE_UTABLE, KEY_UROWID + "=" + rowId, null) > 0;
     	else
     		return false;
+    }
+    
+    public int count(String table) {
+    	Cursor cursor;
+    	
+    	String sql = "SELECT COUNT(id) FROM " + table; 
+    	
+    	if (table.equals("game")) {
+    		cursor = db.rawQuery(sql, null);
+    		return cursor.getInt(0);
+    	}
+    	else if (table.equals("user")) {
+    		cursor = db.rawQuery(sql, null);
+    		return cursor.getInt(0);
+    	}
+    	else {
+    		return -1;
+    	}
     }
 }

@@ -2,9 +2,5 @@
 <TextView
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_height="wrap_content"
-	android:layout_gravity="top"
 	android:layout_width="fill_parent"
-	android:layout_marginLeft="105dp"
-	android:layout_marginRight="105dp"
-	android:id="@+id/listuser"
-	android:layout_marginTop="79dp" />
+	android:id="@+id/listuser" android:textColor="#333" android:textStyle="bold" android:inputType="textCapWords" android:paddingLeft="20dp" android:paddingRight="20dp" android:height="50dp"/>

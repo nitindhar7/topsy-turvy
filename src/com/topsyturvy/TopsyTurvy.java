@@ -30,7 +30,6 @@ package com.topsyturvy;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -70,10 +69,6 @@ public class TopsyTurvy extends Activity implements OnClickListener {
         // Create and open db
         dbAdapter = new TopsyTurvyDbAdapter(this);
         dbAdapter.open();
-        
-        // Retrieve game settings
-        Cursor cursor = dbAdapter.find("game", 1);
-        startManagingCursor(cursor);
         
 		// Define listeners
 		mainMenuSinglePlayerButton.setOnClickListener(this);
