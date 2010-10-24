@@ -31,6 +31,8 @@
 			android:name=".AddProfile"></activity>
 		<activity
 			android:name=".Scores"></activity>
+		<activity
+			android:name=".Hints"></activity>
 	</application>
 	<uses-sdk
 		android:minSdkVersion="8" />

@@ -47,10 +47,10 @@ public class Scores extends ListActivity {
         
         intent = this.getIntent().getStringExtra("mode");
         if (intent.equals("singleplayer")) {
-        	setContentView(R.layout.single_player);
+        	setContentView(R.layout.scoreboard);
         }
         else {
-        	setContentView(R.layout.multi_player);
+        	setContentView(R.layout.scoreboard);
         }
 
         // Create and open db

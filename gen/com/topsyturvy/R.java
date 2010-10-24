@@ -50,11 +50,12 @@ public final class R {
         public static final int TextView01=0x7f060000;
         public static final int TextView02=0x7f060001;
         public static final int ToggleButton01=0x7f060010;
-        public static final int blank=0x7f06001e;
+        public static final int blank=0x7f06001f;
         public static final int enter_user=0x7f060002;
+        public static final int graphics_holder=0x7f06001e;
         public static final int hintsLabel=0x7f06001c;
         public static final int hintsSettings=0x7f06001a;
-        public static final int listuser=0x7f06001f;
+        public static final int listuser=0x7f060020;
         public static final int logo=0x7f060005;
         public static final int mainMenuMultiPlayer=0x7f060007;
         public static final int mainMenuSettings=0x7f060008;
@@ -84,11 +85,12 @@ public final class R {
         public static final int main=0x7f030001;
         public static final int multi_player=0x7f030002;
         public static final int profile=0x7f030003;
-        public static final int settings=0x7f030004;
-        public static final int single_player=0x7f030005;
-        public static final int switch_profile=0x7f030006;
-        public static final int user_list=0x7f030007;
-        public static final int users_row=0x7f030008;
+        public static final int scoreboard=0x7f030004;
+        public static final int settings=0x7f030005;
+        public static final int single_player=0x7f030006;
+        public static final int switch_profile=0x7f030007;
+        public static final int user_list=0x7f030008;
+        public static final int users_row=0x7f030009;
     }
     public static final class string {
         public static final int app_name=0x7f04000d;
