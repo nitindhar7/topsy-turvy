@@ -1,12 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<FrameLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical"
 	android:layout_width="fill_parent"
-	android:layout_height="fill_parent">
-	
-	<FrameLayout
-		android:id="@+id/graphics_holder"
-		android:layout_height="match_parent"
-		android:layout_width="match_parent"></FrameLayout>
-</LinearLayout>
+	android:layout_height="fill_parent"
+	android:id="@+id/graphics_holder"
+	android:background="@drawable/table">
+	<android.gesture.GestureOverlayView
+		android:id="@+id/gestures"
+		android:layout_width="fill_parent"
+		android:layout_height="0dip"
+		android:layout_weight="1.0" />
+	<RelativeLayout
+		android:id="@+id/RelativeLayout01"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content">
+		<RelativeLayout
+			android:layout_height="wrap_content"
+			android:layout_width="fill_parent"
+			android:id="@+id/coordinates">
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:id="@+id/xCoord" android:textColor="#FFF"></TextView>
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:id="@+id/yCoord"
+				android:layout_toRightOf="@+id/xCoord"
+				android:layout_marginLeft="50dp" android:textColor="#FFF"></TextView>
+		</RelativeLayout>
+		<RelativeLayout
+			android:layout_height="wrap_content"
+			android:id="@+id/velocities"
+			android:layout_below="@+id/coordinates" android:layout_width="fill_parent">
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:id="@+id/velocityX" android:textColor="#FFF"></TextView>
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:id="@+id/velocityY"
+				android:layout_toRightOf="@+id/velocityX"
+				android:layout_marginLeft="50dp" android:textColor="#FFF"></TextView>
+		</RelativeLayout>
+	</RelativeLayout>
+
+
+
+
+
+
+</FrameLayout>

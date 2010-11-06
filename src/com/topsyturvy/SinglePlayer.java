@@ -27,6 +27,9 @@
 
 package com.topsyturvy;
 
+
+import org.jbox2d.common.Vec2;
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -34,33 +37,46 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.animation.Interpolator;
-import android.view.animation.OvershootInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 public class SinglePlayer extends Activity {
+    
+	private final String TAG = "TOPSY";
+	private TextView xCoord;
+	private TextView yCoord;
+	private TextView velocityXTextView;
+	private TextView velocityYTextView;
+
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.single_player);
         
-        // create new image that can be moved
-        PlayAreaView image = new PlayAreaView(this);
+        xCoord				= (TextView)findViewById(R.id.xCoord);
+        yCoord				= (TextView)findViewById(R.id.yCoord);
+        velocityXTextView	= (TextView)findViewById(R.id.velocityX);
+        velocityYTextView	= (TextView)findViewById(R.id.velocityY);
         
-        // displays objects by adding to view
-        FrameLayout frame = (FrameLayout)findViewById(R.id.graphics_holder);        
+        FrameLayout frame	= (FrameLayout) findViewById(R.id.graphics_holder);
+        PlayAreaView image	= new PlayAreaView(this);
         frame.addView(image);
 	}
-	
+
 	private class PlayAreaView extends View {
 
         private GestureDetector gestures;
         private Matrix translate;
         private Bitmap droid;
+        private PhysicsWorld mWorld;  
+        private Handler mHandler;
 
         private Matrix animateStart;
         private Interpolator animateInterpolator;
@@ -72,62 +88,56 @@ public class SinglePlayer extends Activity {
         public PlayAreaView(Context context) {
             super(context);
             
-            // a graphical 3x3 matrix for holding coords.
-            translate = new Matrix();
+            translate	= new Matrix();
+            gestures	= new GestureDetector(SinglePlayer.this, new GestureListener(this));
+            droid		= BitmapFactory.decodeResource(getResources(), R.drawable.top);
             
-            // gesture detector manages and senses gestures
-            gestures = new GestureDetector(SinglePlayer.this, new GestureListener(this));
+            mWorld = new PhysicsWorld();  
+            mWorld.create();
             
-            // image to move
-            droid = BitmapFactory.decodeResource(getResources(), R.drawable.icon);
+            // Add a Ball
+            mWorld.addBall();
+            
+            // Start Regular Update  
+            mHandler = new Handler();  
+            mHandler.post(update);
         }
 
-        /**
-         * Analyzes the given motion event and if applicable triggers the
-         * appropriate callbacks on the GestureDetector.OnGestureListener supplied.
-         */
+        @Override
         public boolean onTouchEvent(MotionEvent event) {
-            return gestures.onTouchEvent(event);
-        }
+        	xCoord.setText("X Coord: " + Float.toString(event.getX()));
+        	yCoord.setText("Y Coord: " + Float.toString(event.getY()));
 
-        /**
-         * Causes the Runnable r to be added to the message queue.
-         * The runnable will be run on the thread to which this handler is attached.
-         * 
-         * @param dx
-         * @param dy
-         * @param duration
-         */
-		public void onAnimateMove(float dx, float dy, long duration) {
+        	return gestures.onTouchEvent(event);
+        }
+        
+        public void onAnimateMove(float dx, float dy, long duration) {
             animateStart		= new Matrix(translate);
+            animateInterpolator	= new LinearInterpolator();
             startTime			= System.currentTimeMillis();
             endTime				= startTime + duration;
             totalAnimDx			= dx;
             totalAnimDy			= dy;
-            
-            // An interpolator where the change flings forward
-            // and overshoots the last value then comes back.
-            animateInterpolator	= new OvershootInterpolator();
 
-            // Represents a command that can be executed.
-            // Often used to run code in a different Thread.
             post(new Runnable() {
+                @Override
                 public void run() {
                     onAnimateStep();
                 }
             });
         }
 
-		/**
-		 * 
-		 */
         private void onAnimateStep() {
             long curTime			= System.currentTimeMillis();
             float percentTime		= (float) (curTime - startTime) / (float) (endTime - startTime);
             float percentDistance	= animateInterpolator.getInterpolation(percentTime);
+            
             float curDx				= percentDistance * totalAnimDx;
             float curDy				= percentDistance * totalAnimDy;
             translate.set(animateStart);
+
+            translate.setRotate(10);
+            
             onMove(curDx, curDy);
 
             if (percentTime < 1.0f) {
@@ -157,9 +167,17 @@ public class SinglePlayer extends Activity {
         protected void onDraw(Canvas canvas) {
             canvas.drawBitmap(droid, translate, null);
         }
+        
+      
+        private Runnable update = new Runnable() {  
+            public void run() {  
+                mWorld.update();  
+                mHandler.postDelayed(update, (long) (mWorld.timeStep*1000));
+            }  
+        };
     }
 	
-	private class GestureListener implements GestureDetector.OnGestureListener,  GestureDetector.OnDoubleTapListener {
+    private class GestureListener implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 
         PlayAreaView view;
 
@@ -177,9 +195,13 @@ public class SinglePlayer extends Activity {
             final float distanceTimeFactor = 0.4f;
             final float totalDx = (distanceTimeFactor * velocityX / 2);
             final float totalDy = (distanceTimeFactor * velocityY / 2);
+            
+            view.mWorld.bodies[0].m_linearVelocity = new Vec2(velocityX, velocityY);
+            
+            velocityXTextView.setText("X velocity: " + Float.toString((int)velocityX));
+            velocityYTextView.setText("Y velocity: " + Float.toString((int)velocityY));
 
-            view.onAnimateMove(totalDx, totalDy,
-                    (long) (1000 * distanceTimeFactor));
+            view.onAnimateMove(totalDx, totalDy, (long) (1000 * distanceTimeFactor));
             return true;
         }
 
@@ -190,15 +212,15 @@ public class SinglePlayer extends Activity {
         }
 
         @Override
-        public void onLongPress(MotionEvent e) {
-        }
-
-        @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            view.onMove(-distanceX, -distanceY);
+            //view.onMove(-distanceX, -distanceY);
             return true;
         }
 
+        @Override
+        public void onLongPress(MotionEvent e) {
+        }
+        
         @Override
         public void onShowPress(MotionEvent e) {
         }
@@ -217,6 +239,5 @@ public class SinglePlayer extends Activity {
         public boolean onSingleTapConfirmed(MotionEvent e) {
             return false;
         }
-
     }
 }

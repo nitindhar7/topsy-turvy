@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
+	<classpathentry kind="lib" path="C:/Users/Nitin Dhar/Desktop/JBox2d-2.0.1/JBox2D 05-08-2008/jbox2d-2.0.1-full.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
