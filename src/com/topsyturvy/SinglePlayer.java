@@ -27,217 +27,132 @@
 
 package com.topsyturvy;
 
-
 import org.jbox2d.common.Vec2;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Matrix;
+import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.Handler;
+import android.os.Vibrator;
+import android.view.Display;
 import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
-import android.view.animation.Interpolator;
-import android.view.animation.LinearInterpolator;
-import android.widget.FrameLayout;
-import android.widget.TextView;
+import android.view.WindowManager;
 
-public class SinglePlayer extends Activity {
-    
-	private final String TAG = "TOPSY";
-	private TextView xCoord;
-	private TextView yCoord;
-	private TextView velocityXTextView;
-	private TextView velocityYTextView;
+public class SinglePlayer extends Activity
+{    
+	private ClearGLSurfaceView mGLView;
+	private GestureDetector gestureDetector;
+	private View.OnTouchListener gestureListener;
+	private Vibrator vibrator;
+	private Display display;
+	
+	private PhysicsWorld pWorld;
+	private Polygon pTable;
+	private Circle pTop;
 
-	public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.single_player);
+	public void onCreate(Bundle savedInstanceState)
+	{
+		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+		// Get services
+		vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+		display = ((WindowManager)getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         
-        xCoord				= (TextView)findViewById(R.id.xCoord);
-        yCoord				= (TextView)findViewById(R.id.yCoord);
-        velocityXTextView	= (TextView)findViewById(R.id.velocityX);
-        velocityYTextView	= (TextView)findViewById(R.id.velocityY);
+        // Start physics
+		pWorld = new PhysicsWorld();
         
-        FrameLayout frame	= (FrameLayout) findViewById(R.id.graphics_holder);
-        PlayAreaView image	= new PlayAreaView(this);
-        frame.addView(image);
+        pTable = new Polygon();
+        pTable.setPosition(display.getWidth()/8, display.getHeight()/8, display);
+        pTable.setDimensions(6*display.getWidth()/8, 6*display.getWidth()/8, display);
+        pTable.setDensity(1);
+        pTable.setFriction(0.5f);
+        pTable.setRestitution(0.5f);
+        pTable.setBody(pWorld.createBody(pTable.getBodyDef()));
+        pTable.setShape(pTable.getShape());
+        pTable.setMassFromShapes();
+        
+        pTop = new Circle();
+        pTop.setPosition(display.getWidth()/2, display.getHeight()*6/8, display);
+        pTop.setRadius(display.getWidth()/8);
+        pTop.setDensity(1);
+        pTop.setFriction(0.5f);
+        pTop.setRestitution(0.5f);
+        pTop.setBody(pWorld.createBody(pTop.getBodyDef()));
+        pTop.setShape(pTop.getShape());
+        pTop.setMassFromShapes();
+        
+        
+        
+        // Create GLSurfaceView with sensors
+		mGLView = new ClearGLSurfaceView(this, (SensorManager) getSystemService(SENSOR_SERVICE), display, pWorld);
+
+		// Create gesture detector
+		gestureDetector = new GestureDetector(new MyGestureDetector(mGLView));
+		gestureListener = new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                if (gestureDetector.onTouchEvent(event)) {
+                    return true;
+                }
+                return false;
+            }
+        };
+        
+        // Create gesture listener
+        mGLView.setOnTouchListener(gestureListener);
+
+        
+        pTable.setUserData(mGLView.renderer.getTable());
+        pTable.getUserData().setPosition(display.getWidth()/2, display.getHeight()/2, display);
+        pTop.setUserData(mGLView.renderer.getTop());
+        pTop.getUserData().setPosition(display.getWidth()/2, display.getHeight()*6/8, display);
+        
+        setContentView(mGLView);
+	}
+	
+	
+	class MyGestureDetector extends SimpleOnGestureListener implements GestureDetector.OnDoubleTapListener
+	{
+		private ClearGLSurfaceView mGLView;
+		private Vec2 ballPosition;
+		
+		public MyGestureDetector(ClearGLSurfaceView cglsv)
+		{
+			this.mGLView = cglsv;
+		}
+		
+	    @Override
+	    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
+	    {
+	    	//ballPosition = mGLView.renderer.mWorld.getBodyList().getWorldCenter();
+	    	mGLView.renderer.flingReleased = true;
+	    	vibrator.vibrate(100);
+	    	
+	    	/*if ((e2.getX() <= ballPosition.x+2 || e2.getX() >= ballPosition.x-2) && (e2.getY() <= ballPosition.y+2 || e2.getY() >= ballPosition.y-2)) {
+		    	//mGLView.renderer.mWorld.setVelocity(new Vec2(velocityX/50, -velocityY/50));
+		    	//mGLView.renderer.mWorld.setBallImpulse(new Vec2(1f, 1f), ballPosition);
+	    	}*/
+
+	        return false;
+	    }
 	}
 
-	private class PlayAreaView extends View {
+	@Override
+	protected void onPause()
+	{
+		super.onPause();
+		mGLView.onPause();
+	}
 
-        private GestureDetector gestures;
-        private Matrix translate;
-        private Bitmap droid;
-        private PhysicsWorld mWorld;  
-        private Handler mHandler;
-
-        private Matrix animateStart;
-        private Interpolator animateInterpolator;
-        private long startTime;
-        private long endTime;
-        private float totalAnimDx;
-        private float totalAnimDy;
-        
-        public PlayAreaView(Context context) {
-            super(context);
-            
-            translate	= new Matrix();
-            gestures	= new GestureDetector(SinglePlayer.this, new GestureListener(this));
-            droid		= BitmapFactory.decodeResource(getResources(), R.drawable.top);
-            
-            mWorld = new PhysicsWorld();  
-            mWorld.create();
-            
-            // Add a Ball
-            mWorld.addBall();
-            
-            // Start Regular Update  
-            mHandler = new Handler();  
-            mHandler.post(update);
-        }
-
-        @Override
-        public boolean onTouchEvent(MotionEvent event) {
-        	xCoord.setText("X Coord: " + Float.toString(event.getX()));
-        	yCoord.setText("Y Coord: " + Float.toString(event.getY()));
-
-        	return gestures.onTouchEvent(event);
-        }
-        
-        public void onAnimateMove(float dx, float dy, long duration) {
-            animateStart		= new Matrix(translate);
-            animateInterpolator	= new LinearInterpolator();
-            startTime			= System.currentTimeMillis();
-            endTime				= startTime + duration;
-            totalAnimDx			= dx;
-            totalAnimDy			= dy;
-
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    onAnimateStep();
-                }
-            });
-        }
-
-        private void onAnimateStep() {
-            long curTime			= System.currentTimeMillis();
-            float percentTime		= (float) (curTime - startTime) / (float) (endTime - startTime);
-            float percentDistance	= animateInterpolator.getInterpolation(percentTime);
-            
-            float curDx				= percentDistance * totalAnimDx;
-            float curDy				= percentDistance * totalAnimDy;
-            translate.set(animateStart);
-
-            translate.setRotate(10);
-            
-            onMove(curDx, curDy);
-
-            if (percentTime < 1.0f) {
-                post(new Runnable() {
-                    public void run() {
-                        onAnimateStep();
-                    }
-                });
-            }
-        }
-
-        public void onMove(float dx, float dy) {
-            translate.postTranslate(dx, dy);
-            invalidate();
-        }
-
-        public void onResetLocation() {
-            translate.reset();
-            invalidate();
-        }
-
-        public void onSetLocation(float dx, float dy) {
-            translate.postTranslate(dx, dy);
-        }
-
-        @Override
-        protected void onDraw(Canvas canvas) {
-            canvas.drawBitmap(droid, translate, null);
-        }
-        
-      
-        private Runnable update = new Runnable() {  
-            public void run() {  
-                mWorld.update();  
-                mHandler.postDelayed(update, (long) (mWorld.timeStep*1000));
-            }  
-        };
-    }
-	
-    private class GestureListener implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
-
-        PlayAreaView view;
-
-        public GestureListener(PlayAreaView view) {
-            this.view = view;
-        }
-
-        @Override
-        public boolean onDown(MotionEvent e) {
-            return true;
-        }
-
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, final float velocityX, final float velocityY) {
-            final float distanceTimeFactor = 0.4f;
-            final float totalDx = (distanceTimeFactor * velocityX / 2);
-            final float totalDy = (distanceTimeFactor * velocityY / 2);
-            
-            view.mWorld.bodies[0].m_linearVelocity = new Vec2(velocityX, velocityY);
-            
-            velocityXTextView.setText("X velocity: " + Float.toString((int)velocityX));
-            velocityYTextView.setText("Y velocity: " + Float.toString((int)velocityY));
-
-            view.onAnimateMove(totalDx, totalDy, (long) (1000 * distanceTimeFactor));
-            return true;
-        }
-
-        @Override
-        public boolean onDoubleTap(MotionEvent e) {
-            view.onResetLocation();
-            return true;
-        }
-
-        @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            //view.onMove(-distanceX, -distanceY);
-            return true;
-        }
-
-        @Override
-        public void onLongPress(MotionEvent e) {
-        }
-        
-        @Override
-        public void onShowPress(MotionEvent e) {
-        }
-
-        @Override
-        public boolean onSingleTapUp(MotionEvent e) {
-            return false;
-        }
-
-        @Override
-        public boolean onDoubleTapEvent(MotionEvent e) {
-            return false;
-        }
-
-        @Override
-        public boolean onSingleTapConfirmed(MotionEvent e) {
-            return false;
-        }
-    }
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+		mGLView.onResume();
+	}
 }

@@ -82,6 +82,13 @@ public class TopsyTurvy extends Activity implements OnClickListener {
         // Set vibration setting using value from db
         setVibrator();
     }
+    
+    @Override
+	protected void onPause()
+	{
+		super.onPause();
+		dbAdapter.close();
+	}
 
     public void onClick(View src) {
 		switch(src.getId()) {
