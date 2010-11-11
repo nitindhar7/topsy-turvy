@@ -89,7 +89,7 @@ public class DrawModel {
 		gl.glPushMatrix();
 		gl.glTranslatef(x, y, z);
 		gl.glRotatef(rot, 0f, 0f, 1f);
-		//gl.glScalef(scaleX, scaleY, 0f);
+		gl.glScalef(scaleX, scaleY, 0f);
 		this.draw(gl);
 		gl.glPopMatrix();
 	}

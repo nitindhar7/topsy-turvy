@@ -18,7 +18,8 @@
 			</intent-filter>
 		</activity>
 		<activity
-			android:name=".SinglePlayer"></activity>
+			android:name=".SinglePlayer"
+			android:screenOrientation="portrait"></activity>
 		<activity
 			android:name=".MultiPlayer"></activity>
 		<activity

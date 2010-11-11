@@ -5,9 +5,7 @@ import java.util.List;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import org.jbox2d.collision.CircleShape;
 import org.jbox2d.collision.Shape;
-import org.jbox2d.collision.ShapeType;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 
@@ -20,7 +18,7 @@ import android.opengl.GLSurfaceView;
 import android.opengl.GLU;
 import android.view.Display;
 
-class ClearRenderer implements GLSurfaceView.Renderer {
+class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 	public PhysicsWorld pWorld;
 	private Context mContext;
 	private Display display;
@@ -32,21 +30,27 @@ class ClearRenderer implements GLSurfaceView.Renderer {
 	private int width;
 	private int height;
 	
+	private DrawModel gBackground;
 	private DrawModel gTable;
 	private DrawModel gTop;
-	private Vec2 tempVec;
+	public Vec2 tempVec;
+	private Vec2 tableBoundary;
+	private Vec2 tlVertex;
 	public boolean flingReleased;
+	Body tempBody;
 
-	public ClearRenderer(Context context, SensorManager sensorMgr, Display display, final PhysicsWorld pWorld)
+	public TopsyTurvyRenderer(Context context, SensorManager sensorMgr, Display display, final PhysicsWorld pWorld)
 	{
 		setPhysicsWorld(pWorld);
 		setContext(context);
 		setDisplay(display);
 		setSize(display.getWidth(), display.getHeight());
-		flingReleased = false;
 
 		tempVec = new Vec2(20*6/8, 40*6/8);
 		
+		gBackground	= new DrawModel(new float[] { -15, -20, 0, 15, -20, 0, 15, 20, 0, -15, 20, 0},
+        		new float[] { 0f, 1f, 1f, 1f, 1f, 0f, 0f, 0f },
+        		new short[] { 0, 1, 2, 3, 0 }, 5);
 		gTable	= new DrawModel(new float[] { -tempVec.x/2, -tempVec.y/2, 0, tempVec.x/2, -tempVec.y/2, 0, tempVec.x/2, tempVec.y/2, 0, -tempVec.x/2, tempVec.y/2, 0},
         		new float[] { 0f, 1f, 1f, 1f, 1f, 0f, 0f, 0f },
         		new short[] { 0, 1, 2, 3, 0 }, 5);
@@ -58,15 +62,17 @@ class ClearRenderer implements GLSurfaceView.Renderer {
 				.933f, 0.5f, 1.0f, .75f, .933f, .933f, .75f, 1.0f, 0.5f, .933f,
 				.25f, .75f, .067f, .5f, .0f }, new short[] { 0, 1, 2, 3, 4, 5,
 				6, 7, 8, 9, 10, 11, 12, 13, 14 }, 14);
-		
+
+        tlVertex = toPhysicsCoords(1, 1, display);
+        
 		mSensorEventListener = new SensorEventListener() {
 			@Override
 			public void onSensorChanged(SensorEvent event)
 			{
 				float xAxis = event.values[SensorManager.DATA_X];
 				float yAxis = event.values[SensorManager.DATA_Y];
-				if (flingReleased)
-					pWorld.setGravity(-10*xAxis, -10*yAxis);
+
+				pWorld.setGravity(-10*xAxis, -10*yAxis);
 			}
 
 			@Override
@@ -80,9 +86,9 @@ class ClearRenderer implements GLSurfaceView.Renderer {
 			accSensor = sensors.get(0);
 		}
 
-		sensorMgr.registerListener(mSensorEventListener, accSensor, SensorManager.SENSOR_DELAY_UI);
+		sensorMgr.registerListener(mSensorEventListener, accSensor, SensorManager.SENSOR_DELAY_GAME);
 	}
-	
+
 	public void onSurfaceCreated(GL10 gl, EGLConfig config)
 	{
 		GLU.gluOrtho2D(gl, -12f, 12f, -20f, 20f);
@@ -91,7 +97,8 @@ class ClearRenderer implements GLSurfaceView.Renderer {
 		gl.glTexParameterx(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S, GL10.GL_REPEAT);
 		gl.glTexParameterx(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_T, GL10.GL_REPEAT);
 
-		gTable.loadTexture(gl, mContext, R.drawable.box);
+		gBackground.loadTexture(gl, mContext, R.drawable.table);
+		gTable.loadTexture(gl, mContext, R.drawable.newtable);
 		gTop.loadTexture(gl, mContext, R.drawable.soccerball);
 	}
 
@@ -107,30 +114,29 @@ class ClearRenderer implements GLSurfaceView.Renderer {
 		Body tempBody;
 		Shape tempShape;
 
-		//gl.glClearColor(0f, 0, 1.5f, 1.0f);
+		gl.glClearColor(0f, 0, 1.5f, 1.0f);
 		gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
 		gl.glTexEnvx(GL10.GL_TEXTURE_ENV, GL10.GL_TEXTURE_ENV_MODE, GL10.GL_REPLACE);
-		gl.glColor4f(1f, 1f, 1f, 1f);
+		
+		gBackground.setPosition(display.getWidth()/2, display.getHeight()/2, display);
+		gBackground.draw(gl, gBackground.getPosition().x, gBackground.getPosition().y, 0, 0, 1, 1);
 		
 		gTable.setPosition(display.getWidth()/2, display.getHeight()/2, display);
 		gTable.draw(gl, gTable.getPosition().x, gTable.getPosition().y, 0, 0, 1, 1);
-		
-		tempBody = pWorld.getBodyList();
-		while (tempBody != null) {
-			if ((tempShape = tempBody.getShapeList()) != null) {
-				vec = tempBody.getPosition();
-				
-				// convert radians to degrees
-				rot = tempBody.getAngle() * 270f;
 
-				if (ShapeType.CIRCLE_SHAPE == tempShape.getType()) {
-					float radius = ((CircleShape) tempShape).m_radius;
-					gTop.setPosition(display.getWidth()/2, display.getHeight()*6/8, display);
-					//gTop.draw(gl, gTop.getPosition().x, gTop.getPosition().y, 0, 0, 1, 1);
-					gTop.draw(gl, tempBody.getPosition().x, tempBody.getPosition().y, 0, rot, radius);
-				}
-			}
-			tempBody = tempBody.getNext();
+		tempBody = pWorld.getBodyList();
+		tempShape = tempBody.getShapeList();
+		vec = toPhysicsCoords(tempBody.getPosition().x, tempBody.getPosition().y, display);
+		rot = tempBody.getAngle() * 270;
+		
+		if (tempBody.getPosition().x < -tempVec.x/2 || tempBody.getPosition().x > tempVec.x/2 || tempBody.getPosition().y < -tempVec.y/2 || tempBody.getPosition().y > tempVec.y/2) {
+			tempBody = null;
+			tempBody = null;
+			tempShape = null;
+			gTop = null;
+		}
+		else {
+			gTop.draw(gl, tempBody.getPosition().x, tempBody.getPosition().y, 0, rot, 1);
 		}
 		
 		pWorld.update();

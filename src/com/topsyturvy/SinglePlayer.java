@@ -37,21 +37,24 @@ import android.os.Vibrator;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 public class SinglePlayer extends Activity
 {    
-	private ClearGLSurfaceView mGLView;
+	private TopsyTurvyGLSurfaceView mGLView;
 	private GestureDetector gestureDetector;
 	private View.OnTouchListener gestureListener;
 	private Vibrator vibrator;
 	private Display display;
 	
 	private PhysicsWorld pWorld;
-	private Polygon pTable;
 	private Circle pTop;
 
 	public void onCreate(Bundle savedInstanceState)
@@ -66,17 +69,7 @@ public class SinglePlayer extends Activity
         
         // Start physics
 		pWorld = new PhysicsWorld();
-        
-        pTable = new Polygon();
-        pTable.setPosition(display.getWidth()/8, display.getHeight()/8, display);
-        pTable.setDimensions(6*display.getWidth()/8, 6*display.getWidth()/8, display);
-        pTable.setDensity(1);
-        pTable.setFriction(0.5f);
-        pTable.setRestitution(0.5f);
-        pTable.setBody(pWorld.createBody(pTable.getBodyDef()));
-        pTable.setShape(pTable.getShape());
-        pTable.setMassFromShapes();
-        
+		
         pTop = new Circle();
         pTop.setPosition(display.getWidth()/2, display.getHeight()*6/8, display);
         pTop.setRadius(display.getWidth()/8);
@@ -86,11 +79,9 @@ public class SinglePlayer extends Activity
         pTop.setBody(pWorld.createBody(pTop.getBodyDef()));
         pTop.setShape(pTop.getShape());
         pTop.setMassFromShapes();
-        
-        
-        
+
         // Create GLSurfaceView with sensors
-		mGLView = new ClearGLSurfaceView(this, (SensorManager) getSystemService(SENSOR_SERVICE), display, pWorld);
+		mGLView = new TopsyTurvyGLSurfaceView(this, (SensorManager) getSystemService(SENSOR_SERVICE), display, pWorld);
 
 		// Create gesture detector
 		gestureDetector = new GestureDetector(new MyGestureDetector(mGLView));
@@ -105,23 +96,20 @@ public class SinglePlayer extends Activity
         
         // Create gesture listener
         mGLView.setOnTouchListener(gestureListener);
-
         
-        pTable.setUserData(mGLView.renderer.getTable());
-        pTable.getUserData().setPosition(display.getWidth()/2, display.getHeight()/2, display);
         pTop.setUserData(mGLView.renderer.getTop());
-        pTop.getUserData().setPosition(display.getWidth()/2, display.getHeight()*6/8, display);
-        
+        pTop.getBody().putToSleep();
+
         setContentView(mGLView);
 	}
 	
 	
 	class MyGestureDetector extends SimpleOnGestureListener implements GestureDetector.OnDoubleTapListener
 	{
-		private ClearGLSurfaceView mGLView;
-		private Vec2 ballPosition;
+		private TopsyTurvyGLSurfaceView mGLView;
+		private Vec2 tempPos;
 		
-		public MyGestureDetector(ClearGLSurfaceView cglsv)
+		public MyGestureDetector(TopsyTurvyGLSurfaceView cglsv)
 		{
 			this.mGLView = cglsv;
 		}
@@ -129,17 +117,34 @@ public class SinglePlayer extends Activity
 	    @Override
 	    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
 	    {
-	    	//ballPosition = mGLView.renderer.mWorld.getBodyList().getWorldCenter();
-	    	mGLView.renderer.flingReleased = true;
-	    	vibrator.vibrate(100);
-	    	
-	    	/*if ((e2.getX() <= ballPosition.x+2 || e2.getX() >= ballPosition.x-2) && (e2.getY() <= ballPosition.y+2 || e2.getY() >= ballPosition.y-2)) {
-		    	//mGLView.renderer.mWorld.setVelocity(new Vec2(velocityX/50, -velocityY/50));
-		    	//mGLView.renderer.mWorld.setBallImpulse(new Vec2(1f, 1f), ballPosition);
-	    	}*/
+	    	pTop.getBody().allowSleeping(false);
+	    	pTop.getBody().setAngularVelocity(velocityY/270);
+
+	    	vibrator.vibrate(25);
 
 	        return false;
 	    }
+	    
+	    public Vec2 toPhysicsCoords(float gestureX, float gestureY, Display display)
+		{
+			return new Vec2((20*gestureX)/display.getWidth() - 10, 20 - ((40 * gestureY)/display.getHeight()));
+		}
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.layout.single_player, menu);
+	    return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    switch (item.getItemId()) {
+	        case R.id.quit:
+	        	finish();
+	    }
+	    return true;
 	}
 
 	@Override

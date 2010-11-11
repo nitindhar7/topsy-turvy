@@ -36,7 +36,7 @@ public class Circle
 	
 	public Vec2 getPosition()
 	{
-		return this.bodyDef.position;
+		return this.body.getPosition();
 	}
 	
 	public float getRadius()

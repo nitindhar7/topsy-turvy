@@ -5,31 +5,25 @@ import org.jbox2d.common.Vec2;
 import android.content.Context;
 import android.hardware.SensorManager;
 import android.opengl.GLSurfaceView;
-import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 
-class ClearGLSurfaceView extends GLSurfaceView
+class TopsyTurvyGLSurfaceView extends GLSurfaceView
 {
-	public ClearRenderer renderer;
+	public TopsyTurvyRenderer renderer;
 	private Display display;
 
-	public ClearGLSurfaceView(Context context, SensorManager sensorMgr, Display display, PhysicsWorld mWorld)
+	public TopsyTurvyGLSurfaceView(Context context, SensorManager sensorMgr, Display display, PhysicsWorld pWorld)
 	{
 		super(context);
 
 		setDisplay(display);
-		renderer = new ClearRenderer(context, sensorMgr, display, mWorld);
+		renderer = new TopsyTurvyRenderer(context, sensorMgr, display, pWorld);
 		setRenderer(renderer);
 	}
 
 	public boolean onTouchEvent(final MotionEvent event)
 	{
-		Vec2 physCoords = toPhysicsCoords(event.getX(), event.getY(), display);
-
-		Log.i("TOPSYTURVY", "Screen:  " + Float.toString(event.getX()) + " | " + Float.toString(event.getY()));
-		Log.i("TOPSYTURVY", "Physics: " + Float.toString(physCoords.x) + " | " + Float.toString(physCoords.y));
-		
 		queueEvent(new Runnable() {
 			public void run()
 			{
