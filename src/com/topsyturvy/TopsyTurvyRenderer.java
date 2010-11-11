@@ -16,13 +16,14 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLU;
+import android.util.Log;
 import android.view.Display;
 
 class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 	public PhysicsWorld pWorld;
 	private Context mContext;
 	private Display display;
-
+	
 	SensorEventListener mSensorEventListener;
 	private List<Sensor> sensors;
 	private Sensor accSensor;
@@ -33,9 +34,9 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 	private DrawModel gBackground;
 	private DrawModel gTable;
 	private DrawModel gTop;
+	private DrawModel gFence1;
 	public Vec2 tempVec;
 	private Vec2 tableBoundary;
-	private Vec2 tlVertex;
 	public boolean flingReleased;
 	Body tempBody;
 
@@ -45,25 +46,24 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 		setContext(context);
 		setDisplay(display);
 		setSize(display.getWidth(), display.getHeight());
-
+		
 		tempVec = new Vec2(20*6/8, 40*6/8);
 		
-		gBackground	= new DrawModel(new float[] { -15, -20, 0, 15, -20, 0, 15, 20, 0, -15, 20, 0},
+		gBackground	= new DrawModel(new float[] { -12, -20, 0, 12, -20, 0, 12, 20, 0, -12, 20, 0},
         		new float[] { 0f, 1f, 1f, 1f, 1f, 0f, 0f, 0f },
-        		new short[] { 0, 1, 2, 3, 0 }, 5);
+        		new short[] { 0, 1, 2, 3, 0 },
+        		5);
 		gTable	= new DrawModel(new float[] { -tempVec.x/2, -tempVec.y/2, 0, tempVec.x/2, -tempVec.y/2, 0, tempVec.x/2, tempVec.y/2, 0, -tempVec.x/2, tempVec.y/2, 0},
         		new float[] { 0f, 1f, 1f, 1f, 1f, 0f, 0f, 0f },
-        		new short[] { 0, 1, 2, 3, 0 }, 5);
-        gTop	= new DrawModel(new float[] { 0, 0, 0, 0, 1, 0, -.5f, .866f, 0,
-				-.866f, .5f, 0, -1, 0, 0, -.866f, -.5f, 0, -.5f, -.866f, 0, 0,
-				-1, 0, .5f, -.866f, 0, .866f, -.5f, 0, 1, 0, 0, .866f, .5f, 0,
-				.5f, .866f, 0, 0f, 1f, 0 }, new float[] { 0.5f, 0.5f, 0.5f,
-				0.0f, .25f, .067f, .067f, .25f, 0.0f, 0.5f, .067f, .75f, .25f,
-				.933f, 0.5f, 1.0f, .75f, .933f, .933f, .75f, 1.0f, 0.5f, .933f,
-				.25f, .75f, .067f, .5f, .0f }, new short[] { 0, 1, 2, 3, 4, 5,
-				6, 7, 8, 9, 10, 11, 12, 13, 14 }, 14);
-
-        tlVertex = toPhysicsCoords(1, 1, display);
+        		new short[] { 0, 1, 2, 3, 0 },
+        		5);
+        gTop	= new DrawModel(new float[] { 0, 0, 0, 0, 1, 0, -.5f, .866f, 0, -.866f, .5f, 0, -1, 0, 0, -.866f, -.5f, 0, -.5f, -.866f, 0, 0, -1, 0, .5f, -.866f, 0, .866f, -.5f, 0, 1, 0, 0, .866f, .5f, 0, .5f, .866f, 0, 0f, 1f, 0 },
+				new float[] { 0.5f, 0.5f, 0.5f, 0.0f, .25f, .067f, .067f, .25f, 0.0f, 0.5f, .067f, .75f, .25f, .933f, 0.5f, 1.0f, .75f, .933f, .933f, .75f, 1.0f, 0.5f, .933f, .25f, .75f, .067f, .5f, .0f },
+				new short[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 },
+				14);
+        gFence1 = new DrawModel(new float[] { -1, -1, 0, 1, -1, 0, 1, 1, 0, -1, 1,
+				0 }, new float[] { 0f, 1f, 1f, 1f, 1f, 0f, 0f, 0f },
+				new short[] { 0, 1, 2, 3, 0 }, 5);
         
 		mSensorEventListener = new SensorEventListener() {
 			@Override
@@ -72,7 +72,7 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 				float xAxis = event.values[SensorManager.DATA_X];
 				float yAxis = event.values[SensorManager.DATA_Y];
 
-				pWorld.setGravity(-10*xAxis, -10*yAxis);
+				pWorld.setGravity(-2*xAxis, -2*yAxis);
 			}
 
 			@Override
@@ -97,9 +97,11 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 		gl.glTexParameterx(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S, GL10.GL_REPEAT);
 		gl.glTexParameterx(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_T, GL10.GL_REPEAT);
 
-		gBackground.loadTexture(gl, mContext, R.drawable.table);
+		gBackground.loadTexture(gl, mContext, R.drawable.floor);
 		gTable.loadTexture(gl, mContext, R.drawable.newtable);
-		gTop.loadTexture(gl, mContext, R.drawable.soccerball);
+		gTop.loadTexture(gl, mContext, R.drawable.top);
+		gFence1.loadTexture(gl, mContext, R.drawable.fence10);
+		//gFence.loadTexture(gl, mContext, R.drawable.fence10);
 	}
 
 	public void onSurfaceChanged(GL10 gl, int w, int h)
@@ -116,27 +118,42 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 
 		gl.glClearColor(0f, 0, 1.5f, 1.0f);
 		gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
-		gl.glTexEnvx(GL10.GL_TEXTURE_ENV, GL10.GL_TEXTURE_ENV_MODE, GL10.GL_REPLACE);
+		gl.glTexEnvx(GL10.GL_TEXTURE_ENV, GL10.GL_TEXTURE_ENV_MODE, GL10.GL_MODULATE);
 		
 		gBackground.setPosition(display.getWidth()/2, display.getHeight()/2, display);
 		gBackground.draw(gl, gBackground.getPosition().x, gBackground.getPosition().y, 0, 0, 1, 1);
 		
 		gTable.setPosition(display.getWidth()/2, display.getHeight()/2, display);
 		gTable.draw(gl, gTable.getPosition().x, gTable.getPosition().y, 0, 0, 1, 1);
-
-		tempBody = pWorld.getBodyList();
-		tempShape = tempBody.getShapeList();
-		vec = toPhysicsCoords(tempBody.getPosition().x, tempBody.getPosition().y, display);
-		rot = tempBody.getAngle() * 270;
 		
-		if (tempBody.getPosition().x < -tempVec.x/2 || tempBody.getPosition().x > tempVec.x/2 || tempBody.getPosition().y < -tempVec.y/2 || tempBody.getPosition().y > tempVec.y/2) {
-			tempBody = null;
-			tempBody = null;
+		tempBody = pWorld.getBodyList();
+		while (tempBody != null) {
+			tempShape = tempBody.getShapeList();
+			
+			if (tempShape != null) {
+				switch (tempShape.getType()) {
+					case CIRCLE_SHAPE:
+						rot = tempBody.getAngle() * 270;
+						
+						if (tempBody.getPosition().x < -tempVec.x/2 || tempBody.getPosition().x > tempVec.x/2 || tempBody.getPosition().y < -tempVec.y/2 || tempBody.getPosition().y > tempVec.y/2) {
+							//tempBody = null;
+							//tempShape = null;
+							//gTop = null;
+							gTop.draw(gl, tempBody.getPosition().x, tempBody.getPosition().y, 0, rot, .5f);
+						}
+						else {
+							gTop.draw(gl, tempBody.getPosition().x, tempBody.getPosition().y, 0, rot, 1);			
+						}
+						break;
+					case POLYGON_SHAPE:
+						//Vec2[] vertexes = ((PolygonShape) tempShape).getVertices();
+						//gFence1.draw(gl, tempBody.getPosition().x, tempBody.getPosition().y, 0, 0, 1, 1);
+						//gFence.draw(gl, tempBody.getPosition().x, tempBody.getPosition().y, 0, 0, 1, 1);	
+				}
+			}
+			
+			tempBody = tempBody.getNext();
 			tempShape = null;
-			gTop = null;
-		}
-		else {
-			gTop.draw(gl, tempBody.getPosition().x, tempBody.getPosition().y, 0, rot, 1);
 		}
 		
 		pWorld.update();

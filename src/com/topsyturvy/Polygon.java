@@ -12,6 +12,7 @@ public class Polygon
 	private BodyDef bodyDef;
 	private Body body;
 	private PolygonDef shapeDef;
+	private Vec2 tempVec;
 	
 	private Vec2 dimensions;
 
@@ -95,10 +96,11 @@ public class Polygon
 	{
 		this.bodyDef.position.set(toPhysicsCoords(x, y, display));
 	}
-
+	
 	public void setDimensions(float width, float height, Display display)
 	{
-		this.dimensions = toPhysicsCoords(width, height, display);
+		tempVec = new Vec2(20/display.getWidth()*width, 40/display.getHeight()*height);
+		this.dimensions = toPhysicsCoords(tempVec.x, tempVec.y, display);
 		this.shapeDef.setAsBox(dimensions.x, dimensions.y);
 	}
 	
@@ -126,6 +128,11 @@ public class Polygon
     {
 		this.body.setUserData(object);
     }
+	
+	public void setAsBox(float hx, float hy)
+	{
+		this.shapeDef.setAsBox(hx, hy);
+	}
 	
 	public Vec2 toPhysicsCoords(float gestureX, float gestureY, Display display)
 	{

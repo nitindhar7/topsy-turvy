@@ -9,7 +9,7 @@ import org.jbox2d.dynamics.World;
 
 public class PhysicsWorld
 {
-    final private float FRAMERATE	= 60;
+    final private float FRAMERATE	= 30;
     final private float timeStep	= (1 / FRAMERATE);
     final private int iterations	= 5;
 
@@ -32,6 +32,11 @@ public class PhysicsWorld
     public void setGravity(float componentX, float componentY)
     {
     	world.setGravity(new Vec2(componentX, componentY));
+    }
+    
+    public int getContactCount()
+    {
+    	return world.getContactCount();
     }
     
     public Vec2 getWorldLowerBound()
