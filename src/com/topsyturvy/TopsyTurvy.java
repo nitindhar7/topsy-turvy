@@ -33,10 +33,13 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.Toast;
 
 public class TopsyTurvy extends Activity implements OnClickListener {
     
@@ -59,17 +62,14 @@ public class TopsyTurvy extends Activity implements OnClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.main);
         
         // Retrieve UI elements
         mainMenuSinglePlayerButton 	= (Button)findViewById(R.id.mainMenuSinglePlayer);
         mainMenuMultiPlayerButton 	= (Button)findViewById(R.id.mainMenuMultiPlayer);
         mainMenuSettingsButton 		= (Button)findViewById(R.id.mainMenuSettings);
-        
-        // Create and open db
-        dbAdapter = new TopsyTurvyDbAdapter(this);
-        dbAdapter.open();
-        
+
 		// Define listeners
 		mainMenuSinglePlayerButton.setOnClickListener(this);
 		mainMenuMultiPlayerButton.setOnClickListener(this);
@@ -84,12 +84,38 @@ public class TopsyTurvy extends Activity implements OnClickListener {
     }
     
     @Override
+	protected void onStart()
+	{
+		super.onStart();
+		
+		String playerName;
+    	int playerCount;
+    	int activePlayerId;
+    	
+        dbAdapter = new TopsyTurvyDbAdapter(this);
+        dbAdapter.open();
+		playerCount = dbAdapter.count("player");
+		
+		if (playerCount > 0) {
+			activePlayerId = dbAdapter.find("game", "first").getInt(4);
+			playerName = dbAdapter.find("player", activePlayerId).getString(1);
+			Toast.makeText(this , "Hi " + playerName + "!", Toast.LENGTH_LONG).show();
+		}
+	}
+    
+    @Override
 	protected void onPause()
 	{
 		super.onPause();
 		dbAdapter.close();
 	}
-
+    
+    @Override
+	public void onBackPressed() {
+    	dbAdapter.close();
+		finish();
+	}
+    
     public void onClick(View src) {
 		switch(src.getId()) {
 			case R.id.mainMenuSinglePlayer:
@@ -97,7 +123,7 @@ public class TopsyTurvy extends Activity implements OnClickListener {
 	        	startActivity(singlePlayerGame);
 				break;
 			case R.id.mainMenuMultiPlayer:
-				Intent multiPlayerGame = new Intent(TopsyTurvy.this, MultiPlayer.class);
+				Intent multiPlayerGame = new Intent(TopsyTurvy.this, Lobby.class);
 	        	startActivity(multiPlayerGame);
 				break;
 			case R.id.mainMenuSettings:

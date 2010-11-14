@@ -23,19 +23,35 @@
 			android:name=".SinglePlayer"
 			android:screenOrientation="portrait"></activity>
 		<activity
-			android:name=".MultiPlayer"></activity>
+			android:name=".Lobby"
+			android:screenOrientation="portrait"></activity>
 		<activity
-			android:name=".Settings"></activity>
+			android:name=".DeviceListActivity"
+			android:screenOrientation="portrait"></activity>
 		<activity
-			android:name=".Instructions"></activity>
+			android:name=".Settings"
+			android:screenOrientation="portrait"></activity>
 		<activity
-			android:name=".SwitchProfile"></activity>
+			android:name=".Instructions"
+			android:screenOrientation="portrait"></activity>
 		<activity
-			android:name=".AddProfile"></activity>
+			android:name=".SwitchProfile"
+			android:screenOrientation="portrait"></activity>
 		<activity
-			android:name=".Scores"></activity>
+			android:name=".AddProfile"
+			android:screenOrientation="portrait"></activity>
 		<activity
-			android:name=".Hints"></activity>
+			android:name=".EditProfile"
+			android:screenOrientation="portrait"></activity>
+		<activity
+			android:name=".Scores"
+			android:screenOrientation="portrait"></activity>
+		<activity
+			android:name=".Hints"
+			android:screenOrientation="portrait"></activity>
+		<activity
+			android:name=".PlayerInfo"
+			android:screenOrientation="portrait"></activity>
 	</application>
 	<uses-sdk
 		android:minSdkVersion="7" />
@@ -43,4 +59,8 @@
 		android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 	<uses-permission
 		android:name="android.permission.VIBRATE" />
+	<uses-permission
+		android:name="android.permission.BLUETOOTH" />
+	<uses-permission
+		android:name="android.permission.BLUETOOTH_ADMIN" />
 </manifest>

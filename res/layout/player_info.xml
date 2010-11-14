@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:id="@+id/RelativeLayout01"
+	android:background="#FFF">
+	<TextView
+		android:layout_height="wrap_content"
+		android:layout_width="fill_parent"
+		android:id="@+id/playerInfoName"
+		android:paddingLeft="10dp"
+		android:gravity="center_vertical"
+		android:background="#0099FF"
+		android:textColor="#FFF"
+		android:textStyle="bold"
+		android:height="40dp"
+		android:layout_marginBottom="10dp" android:textSize="26px"></TextView>
+	<TextView
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/playerInfoName"
+		android:gravity="center_vertical"
+		android:textStyle="bold"
+		android:paddingLeft="10dp"
+		android:paddingRight="10dp"
+		android:text="Top Score"
+		android:textColor="#666"
+		android:id="@+id/topScoreLabel"
+		android:layout_width="wrap_content"
+		android:minWidth="200dp" android:textSize="20px" android:height="60px"></TextView>
+	<TextView
+		android:layout_height="wrap_content"
+		android:layout_above="@+id/gamesPlayedLabel"
+		android:layout_width="wrap_content"
+		android:id="@+id/topScoreValue"
+		android:layout_toRightOf="@+id/topScoreLabel"
+		android:gravity="center_vertical" android:height="60px"></TextView>
+	<TextView
+		android:layout_height="wrap_content"
+		android:gravity="center_vertical"
+		android:textStyle="bold"
+		android:paddingLeft="10dp"
+		android:paddingRight="10dp"
+		android:text="Games Played"
+		android:textColor="#666"
+		android:id="@+id/gamesPlayedLabel"
+		android:layout_below="@+id/topScoreLabel"
+		android:layout_width="wrap_content"
+		android:minWidth="200dp" android:textSize="20px" android:height="60px"></TextView>
+	<TextView
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:id="@+id/gamesPlayedValue"
+		android:layout_toRightOf="@+id/gamesPlayedLabel"
+		android:gravity="center_vertical"
+		android:layout_below="@+id/topScoreValue" android:height="60px"></TextView>
+	<TextView
+		android:layout_height="wrap_content"
+		android:gravity="center_vertical"
+		android:textStyle="bold"
+		android:paddingLeft="10dp"
+		android:paddingRight="10dp"
+		android:text="Average Score"
+		android:textColor="#666"
+		android:id="@+id/averageScoreLabel"
+		android:layout_below="@+id/gamesPlayedLabel"
+		android:layout_marginBottom="10dp"
+		android:layout_width="wrap_content"
+		android:minWidth="200dp" android:textSize="20px" android:height="60px"></TextView>
+	<TextView
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:id="@+id/averageScoreValue"
+		android:layout_toRightOf="@+id/averageScoreLabel"
+		android:gravity="center_vertical"
+		android:layout_below="@+id/gamesPlayedValue" android:height="60px"></TextView>
+	<TextView
+		android:layout_height="wrap_content"
+		android:layout_width="fill_parent"
+		android:background="@drawable/player_info_separator"
+		android:height="20px"
+		android:id="@+id/playerInfoSeparator"
+		android:layout_below="@+id/averageScoreLabel"></TextView>
+	<TextView
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/playerInfoSeparator"
+		android:id="@+id/soundLabel"
+		android:paddingLeft="10dp"
+		android:paddingRight="10dp"
+		android:text="Sound"
+		android:textStyle="bold"
+		android:textColor="#666"
+		android:gravity="center_vertical"
+		android:layout_width="wrap_content"
+		android:minWidth="200dp" android:textSize="20px" android:height="60px"></TextView>
+	<TextView
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:id="@+id/soundValue"
+		android:layout_toRightOf="@+id/soundLabel"
+		android:gravity="center_vertical"
+		android:layout_below="@+id/playerInfoSeparator" android:height="60px"></TextView>
+	<TextView
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/soundLabel"
+		android:id="@+id/vibrationLabel"
+		android:paddingLeft="10dp"
+		android:paddingRight="10dp"
+		android:text="Vibration"
+		android:textStyle="bold"
+		android:textColor="#666"
+		android:gravity="center_vertical"
+		android:layout_width="wrap_content"
+		android:minWidth="200dp" android:textSize="20px" android:height="60px"></TextView>
+	<TextView
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:id="@+id/vibrationValue"
+		android:layout_toRightOf="@+id/vibrationLabel"
+		android:gravity="center_vertical"
+		android:layout_below="@+id/soundValue" android:height="60px"></TextView>
+</RelativeLayout>

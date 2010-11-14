@@ -3,27 +3,35 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_height="fill_parent"
 	android:layout_width="fill_parent"
-	android:orientation="vertical">
-	<TextView
-		android:id="@+id/TextView01"
-		android:layout_height="wrap_content"
-		android:layout_width="fill_parent"
-		android:background="@drawable/add_profile"
-		android:height="75px"
-		android:layout_marginBottom="30dp"></TextView>
-	<TextView android:id="@+id/TextView02" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Enter Name" android:layout_gravity="center" android:textSize="20dp"></TextView><EditText
-		android:layout_height="wrap_content"
-		android:layout_gravity="center"
-		android:id="@+id/enter_user"
-		android:layout_marginTop="15dp" android:layout_width="fill_parent" android:layout_margin="20dp"></EditText>
-	<Button
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_gravity="center"
-		android:id="@+id/save_user"
-		android:background="@drawable/save_profile"
-		android:height="55px"
-		android:width="100px"
-		android:layout_marginTop="50dp"></Button>
-
+	android:orientation="vertical"
+	android:background="#0099FF">
+	<RelativeLayout
+		android:id="@+id/RelativeLayout01"
+		android:background="@drawable/settings_wrapper"
+		android:layout_height="fill_parent"
+		android:layout_width="fill_parent">
+		<TextView
+			android:layout_height="wrap_content"
+			android:layout_width="fill_parent"
+			android:background="@drawable/add_profile"
+			android:height="75px"
+			android:layout_marginBottom="30dp"
+			android:layout_margin="10dp"
+			android:id="@+id/addProfileLabel"></TextView>
+		
+		<EditText
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:id="@+id/enter_user"
+			android:layout_marginTop="15dp"
+			android:layout_width="fill_parent"
+			android:layout_margin="20dp" android:text="Enter Name" android:layout_below="@+id/addProfileLabel" android:textColor="#999"></EditText>
+		<Button
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:id="@+id/save_user"
+			android:height="55px"
+			android:width="100px"
+			android:layout_below="@+id/enter_user" android:layout_width="wrap_content" android:gravity="center_horizontal" android:layout_centerHorizontal="true" android:background="@drawable/button_settings_profile_new_save"></Button>
+	</RelativeLayout>
 </LinearLayout>

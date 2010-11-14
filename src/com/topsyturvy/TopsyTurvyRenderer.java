@@ -10,13 +10,13 @@ import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLU;
-import android.util.Log;
 import android.view.Display;
 
 class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
@@ -34,9 +34,8 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 	private DrawModel gBackground;
 	private DrawModel gTable;
 	private DrawModel gTop;
-	private DrawModel gFence1;
+	private DrawModel gFence1,gFence2;
 	public Vec2 tempVec;
-	private Vec2 tableBoundary;
 	public boolean flingReleased;
 	Body tempBody;
 
@@ -47,9 +46,9 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 		setDisplay(display);
 		setSize(display.getWidth(), display.getHeight());
 		
-		tempVec = new Vec2(20*6/8, 40*6/8);
+		tempVec = new Vec2(20*7/8, 40*7/8);
 		
-		gBackground	= new DrawModel(new float[] { -12, -20, 0, 12, -20, 0, 12, 20, 0, -12, 20, 0},
+		gBackground	= new DrawModel(new float[] {-12, -20, 0, 12, -20, 0, 12, 20, 0, -12, 20, 0},
         		new float[] { 0f, 1f, 1f, 1f, 1f, 0f, 0f, 0f },
         		new short[] { 0, 1, 2, 3, 0 },
         		5);
@@ -61,9 +60,15 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 				new float[] { 0.5f, 0.5f, 0.5f, 0.0f, .25f, .067f, .067f, .25f, 0.0f, 0.5f, .067f, .75f, .25f, .933f, 0.5f, 1.0f, .75f, .933f, .933f, .75f, 1.0f, 0.5f, .933f, .25f, .75f, .067f, .5f, .0f },
 				new short[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 },
 				14);
-        gFence1 = new DrawModel(new float[] { -1, -1, 0, 1, -1, 0, 1, 1, 0, -1, 1,
-				0 }, new float[] { 0f, 1f, 1f, 1f, 1f, 0f, 0f, 0f },
-				new short[] { 0, 1, 2, 3, 0 }, 5);
+        gFence1 = new DrawModel(new float[] { -1, -1, 0, 1, -1, 0, 1, 1, 0, -1, 1, 0 },
+        		new float[] { 0f, 1f, 1f, 1f, 1f, 0f, 0f, 0f },
+				new short[] { 0, 1, 2, 3, 0 },
+				5);
+
+        gFence2 = new DrawModel(new float[] { -1, -1, 0, 1, -1, 0, 1, 1, 0, -1, 1, 0 },
+        		new float[] { 0f, 1f, 1f, 1f, 1f, 0f, 0f, 0f },
+				new short[] { 0, 1, 2, 3, 0 },
+				5);
         
 		mSensorEventListener = new SensorEventListener() {
 			@Override
@@ -72,7 +77,7 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 				float xAxis = event.values[SensorManager.DATA_X];
 				float yAxis = event.values[SensorManager.DATA_Y];
 
-				pWorld.setGravity(-2*xAxis, -2*yAxis);
+				pWorld.setGravity(-xAxis, -yAxis);
 			}
 
 			@Override
@@ -92,6 +97,12 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 	public void onSurfaceCreated(GL10 gl, EGLConfig config)
 	{
 		GLU.gluOrtho2D(gl, -12f, 12f, -20f, 20f);
+		gl.glClearColor(0, 0, 0, 0);
+		gl.glShadeModel(GL10.GL_SMOOTH);
+		gl.glClearDepthf(1.0f);
+		gl.glEnable(GL10.GL_DEPTH_TEST);
+		gl.glDepthFunc(GL10.GL_LEQUAL);
+		gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_NICEST);
 		gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
 		gl.glEnableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
 		gl.glTexParameterx(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S, GL10.GL_REPEAT);
@@ -101,7 +112,7 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 		gTable.loadTexture(gl, mContext, R.drawable.newtable);
 		gTop.loadTexture(gl, mContext, R.drawable.top);
 		gFence1.loadTexture(gl, mContext, R.drawable.fence10);
-		//gFence.loadTexture(gl, mContext, R.drawable.fence10);
+		gFence2.loadTexture(gl, mContext, R.drawable.fence9);
 	}
 
 	public void onSurfaceChanged(GL10 gl, int w, int h)
@@ -116,7 +127,7 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 		Body tempBody;
 		Shape tempShape;
 
-		gl.glClearColor(0f, 0, 1.5f, 1.0f);
+		gl.glClearColor(0, 0, 0, 0);
 		gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
 		gl.glTexEnvx(GL10.GL_TEXTURE_ENV, GL10.GL_TEXTURE_ENV_MODE, GL10.GL_MODULATE);
 		
@@ -136,19 +147,18 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 						rot = tempBody.getAngle() * 270;
 						
 						if (tempBody.getPosition().x < -tempVec.x/2 || tempBody.getPosition().x > tempVec.x/2 || tempBody.getPosition().y < -tempVec.y/2 || tempBody.getPosition().y > tempVec.y/2) {
-							//tempBody = null;
-							//tempShape = null;
-							//gTop = null;
 							gTop.draw(gl, tempBody.getPosition().x, tempBody.getPosition().y, 0, rot, .5f);
+							tempBody.putToSleep();
 						}
-						else {
-							gTop.draw(gl, tempBody.getPosition().x, tempBody.getPosition().y, 0, rot, 1);			
-						}
+						else
+							gTop.draw(gl, tempBody.getPosition().x, tempBody.getPosition().y, 0, rot, 1);
 						break;
 					case POLYGON_SHAPE:
-						//Vec2[] vertexes = ((PolygonShape) tempShape).getVertices();
-						//gFence1.draw(gl, tempBody.getPosition().x, tempBody.getPosition().y, 0, 0, 1, 1);
-						//gFence.draw(gl, tempBody.getPosition().x, tempBody.getPosition().y, 0, 0, 1, 1);	
+						if(tempBody.getUserData().toString().equals("fence1"))
+							gFence1.draw(gl, tempBody.getPosition().x, tempBody.getPosition().y, 0, 0, 1, 1);
+						else
+							gFence2.draw(gl, tempBody.getPosition().x, tempBody.getPosition().y, 0, 0, 1, 1);
+						break;
 				}
 			}
 			

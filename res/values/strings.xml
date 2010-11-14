@@ -30,4 +30,7 @@
 </string-array>
 
 
+<string name="menu_info">View Info</string>
+<string name="menu_edit">Edit</string>
+<string name="menu_reset">Reset</string>
 </resources>

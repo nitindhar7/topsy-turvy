@@ -39,7 +39,7 @@ public class Polygon
 	
 	public Vec2 getPosition()
 	{
-		return this.bodyDef.position;
+		return this.body.getPosition();
 	}
 	
 	public Vec2 getDimensions()

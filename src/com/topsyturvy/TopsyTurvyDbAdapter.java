@@ -33,6 +33,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 public class TopsyTurvyDbAdapter {
 	
@@ -41,22 +42,14 @@ public class TopsyTurvyDbAdapter {
 	public static final String KEY_SOUND			= "sound";
 	public static final String KEY_VIBRATION		= "vibration";
 	public static final String KEY_PAUSE			= "pause";
-	public static final String KEY_GUSERID			= "user_id";
+	public static final String KEY_PLAYERID			= "player_id";
 	
-	// User table fields
-	public static final String KEY_UROWID			= "_id";
+	// Player table fields
+	public static final String KEY_PROWID			= "_id";
 	public static final String KEY_NAME				= "name";
-	
-	// Single Player table fields
-	public static final String KEY_SROWID			= "_id";
     public static final String KEY_TOPSCORE			= "top_score";
-    public static final String KEY_SUSERID			= "user_id";
-    
-    // Multiplayer table fields
-    public static final String KEY_MROWID			= "_id";
     public static final String KEY_TOTALSCORE		= "total_score";
     public static final String KEY_GAMESPLAYED		= "games_played";
-    public static final String KEY_MUSERID			= "user_id";
 
     // DB specific
     private static final String DATABASE_NAME		= "topsy_turvy";
@@ -64,9 +57,7 @@ public class TopsyTurvyDbAdapter {
     
     // Table names
     private static final String DATABASE_GTABLE		= "game";
-    private static final String DATABASE_UTABLE		= "user";
-    private static final String DATABASE_STABLE		= "single_player";
-    private static final String DATABASE_MTABLE		= "multi_player";
+    private static final String DATABASE_PTABLE		= "player";
 
     private DatabaseHelper dbHelper;
     private SQLiteDatabase db;
@@ -78,22 +69,14 @@ public class TopsyTurvyDbAdapter {
 												  	  KEY_SOUND		  + " INTEGER DEFAULT 1 NOT NULL, " +
 												  	  KEY_VIBRATION	  + " INTEGER DEFAULT 1 NOT NULL, " +
 												  	  KEY_PAUSE	  	  + " INTEGER NOT NULL, " +
-												  	  KEY_GUSERID	  + " INTEGER NOT NULL);";
-    // User table creation
-    private static final String DATABASE_UCREATE	= "CREATE TABLE " + DATABASE_UTABLE + " (" +
-    												  KEY_UROWID	  + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-    												  KEY_NAME		  + " TEXT NULL);";
-    // Single Player table creation
-    private static final String DATABASE_SCREATE	= "CREATE TABLE " + DATABASE_STABLE + " (" +
-												      KEY_SROWID	  + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+												  	  KEY_PLAYERID	  + " INTEGER NOT NULL);";
+    // Player table creation
+    private static final String DATABASE_PCREATE	= "CREATE TABLE " + DATABASE_PTABLE + " (" +
+    												  KEY_PROWID	  + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+    												  KEY_NAME		  + " TEXT NULL, " +
 												      KEY_TOPSCORE	  + " INTEGER DEFAULT 1 NOT NULL, " +
-												      KEY_SUSERID	  + " INTEGER NOT NULL);";
-    // Multi Player table creation
-    private static final String DATABASE_MCREATE	= "CREATE TABLE " + DATABASE_MTABLE + " (" +
-												      KEY_MROWID	  + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
 												      KEY_TOTALSCORE  + " INTEGER DEFAULT 0 NOT NULL, " +
-												      KEY_GAMESPLAYED + " INTEGER DEFAULT 0 NOT NULL, " +
-												      KEY_MUSERID	  + " INTEGER NOT NULL);";
+												      KEY_GAMESPLAYED + " INTEGER DEFAULT 0 NOT NULL);";
 	
 	private static class DatabaseHelper extends SQLiteOpenHelper {
 		DatabaseHelper(Context context) {
@@ -103,17 +86,13 @@ public class TopsyTurvyDbAdapter {
         @Override
         public void onCreate(SQLiteDatabase db) {
             db.execSQL(DATABASE_GCREATE);
-            db.execSQL(DATABASE_UCREATE);
-            db.execSQL(DATABASE_SCREATE);
-            db.execSQL(DATABASE_MCREATE);
+            db.execSQL(DATABASE_PCREATE);
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             db.execSQL("DROP TABLE IF EXISTS " + DATABASE_GTABLE);
-            db.execSQL("DROP TABLE IF EXISTS " + DATABASE_UTABLE);
-            db.execSQL("DROP TABLE IF EXISTS " + DATABASE_STABLE);
-            db.execSQL("DROP TABLE IF EXISTS " + DATABASE_MTABLE);
+            db.execSQL("DROP TABLE IF EXISTS " + DATABASE_PTABLE);
             onCreate(db);
         }
 	}
@@ -158,24 +137,23 @@ public class TopsyTurvyDbAdapter {
      * @param sound		Sound setting: 0 = off, 1 = on
      * @param vibration Vibration setting: 0 = off, 1 = on
      * @param pause		Pause setting: 0 = unpaused, 1 = paused
-     * @param user_id	User id foreign key (Currently active profile)
+     * @param player_id	User id foreign key (Currently active profile)
      * @param name		Name for new user
      * @return			rowId or -1 if failed
      */
-    public long create(String table, int sound, int vibration, int pause, int user_id, String name) {
+    public long create(String table, int sound, int vibration, int pause, int player_id, String name) {
         ContentValues initialValues = new ContentValues();
         
         if (table.equals(DATABASE_GTABLE)) {
         	initialValues.put(KEY_SOUND, sound);
             initialValues.put(KEY_VIBRATION, vibration);
             initialValues.put(KEY_PAUSE, pause);
-            initialValues.put(KEY_GUSERID, user_id);
+            initialValues.put(KEY_PLAYERID, player_id);
             return db.insert(table, null, initialValues);
         }
-        else if (table.equals(DATABASE_UTABLE)) {
+        else if (table.equals(DATABASE_PTABLE)) {
         	initialValues.put(KEY_NAME, name);
         	return db.insert(table, null, initialValues);
-        	// TODO: adding to user table also adds to singleplayer or multiplayer menu's
         }
         else {
         	return -1;
@@ -195,35 +173,61 @@ public class TopsyTurvyDbAdapter {
     	Cursor mCursor;
     	
     	if (table.equals("game")) {
-    		mCursor = db.query(true, DATABASE_GTABLE, new String[] {KEY_GROWID, KEY_SOUND, KEY_VIBRATION, KEY_PAUSE, KEY_GUSERID}, KEY_GROWID + "=" + rowId, null, null, null, null, null);
+    		mCursor = db.query(true, DATABASE_GTABLE, new String[] {KEY_GROWID, KEY_SOUND, KEY_VIBRATION, KEY_PAUSE, KEY_PLAYERID}, KEY_GROWID + "=" + rowId, null, null, null, null, null);
     		mCursor.moveToFirst();
     		return mCursor;
     	}
-    	else if (table.equals("user")) {
-    		mCursor = db.query(true, DATABASE_UTABLE, new String[] {KEY_UROWID, KEY_NAME}, KEY_UROWID + "=" + rowId, null, null, null, null, null);
+    	else if (table.equals("player")) {
+    		mCursor = db.query(true, DATABASE_PTABLE, new String[] {KEY_PROWID, KEY_NAME, KEY_TOPSCORE, KEY_TOTALSCORE, KEY_GAMESPLAYED}, KEY_PROWID + "=" + rowId, null, null, null, null, null);
     		mCursor.moveToFirst();
     		return mCursor;
     	}
-    	// TODO: find for single_player and multiplayer tables
     	else {
     		return null;
     	}
+    }
+    
+    public Cursor find_by_name(String name) {
+    	Cursor mCursor;
+
+		mCursor = db.query(true, DATABASE_PTABLE, new String[] {KEY_PROWID, KEY_NAME, KEY_TOPSCORE, KEY_TOTALSCORE, KEY_GAMESPLAYED}, KEY_NAME + "='" + name + "'", null, null, null, null, null);
+		mCursor.moveToFirst();
+		return mCursor;
+    }
+    
+    public Cursor find(String table, String position) {
+    	Cursor mCursor;
+    	
+    	if (table.equals("game"))
+    		mCursor = db.query(DATABASE_GTABLE, new String[] {KEY_GROWID, KEY_SOUND, KEY_VIBRATION, KEY_PAUSE, KEY_PLAYERID}, null, null, null, null, null);
+    	else if (table.equals("player"))
+    		mCursor = db.query(DATABASE_PTABLE, new String[] {KEY_PROWID, KEY_NAME, KEY_TOPSCORE, KEY_TOTALSCORE, KEY_GAMESPLAYED}, null, null, null, null, null);
+    	else
+    		return null;
+    	
+    	if (position.equals("first"))
+    		mCursor.moveToFirst();
+    	else if (position.equals("last"))
+    		mCursor.moveToLast();
+    	else
+    		return null;
+    	
+    	return mCursor;
     }
     
     /**
      * Return a Cursor over the list of all objects
      * 
      * @param table	Name of table to retrieve record from
-     * @return 		Cursor over all users and scores
+     * @return 		Cursor over all players and scores
      */
     public Cursor findAll(String table) {    	
     	if (table.equals("game")) {
-    		return db.query(DATABASE_GTABLE, new String[] {KEY_GROWID, KEY_SOUND, KEY_VIBRATION, KEY_PAUSE, KEY_GUSERID}, null, null, null, null, null);
+    		return db.query(DATABASE_GTABLE, new String[] {KEY_GROWID, KEY_SOUND, KEY_VIBRATION, KEY_PAUSE, KEY_PLAYERID}, null, null, null, null, null);
     	}
-    	else if (table.equals("user")) {
-    		return db.query(DATABASE_UTABLE, new String[] {KEY_UROWID, KEY_NAME}, null, null, null, null, null);
+    	else if (table.equals("player")) {
+    		return db.query(DATABASE_PTABLE, new String[] {KEY_PROWID, KEY_NAME, KEY_TOPSCORE, KEY_TOTALSCORE, KEY_GAMESPLAYED}, null, null, null, null, null);
     	}
-    	// TODO: findAll for single_player and multi_player tables
     	else {
     		return null;
     	}
@@ -237,28 +241,40 @@ public class TopsyTurvyDbAdapter {
      * @param sound		Sound setting: 0 = off, 1 = on
      * @param vibration Vibration setting: 0 = off, 1 = on
      * @param pause		Pause setting: 0 = unpaused, 1 = paused
-     * @param user		User foreign key (Currently active profile)
+     * @param player		User foreign key (Currently active profile)
      * @param rowId		Row ID of the game to be updated
      * @return true if the note was successfully updated, false otherwise
      */
-    public boolean update(String table, long rowId, int sound, int vibration, int pause, int user_id, String name) {
+    public boolean update(String table, long rowId, int sound, int vibration, int pause, int player_id, String name, int topScore, int gamesPlayed, int totalScore) {
         ContentValues args = new ContentValues();
         
         if (table.equals("game")) {
         	args.put(KEY_SOUND, sound);
             args.put(KEY_VIBRATION, vibration);
             args.put(KEY_PAUSE, pause);
-            args.put(KEY_GUSERID, user_id);
+            args.put(KEY_PLAYERID, player_id);
             return db.update(DATABASE_GTABLE, args, KEY_GROWID + "=" + rowId, null) > 0;
         }
-        else if (table.equals("user")) {
+        else if (table.equals("player")) {
         	args.put(KEY_NAME, name);
-            return db.update(DATABASE_UTABLE, args, KEY_UROWID + "=" + rowId, null) > 0;
+        	args.put(KEY_TOPSCORE, topScore);
+        	args.put(KEY_TOTALSCORE, totalScore);
+        	args.put(KEY_GAMESPLAYED, gamesPlayed);
+            return db.update(DATABASE_PTABLE, args, KEY_PROWID + "=" + rowId, null) > 0;
         }
-        // TODO: single and multi player tables
         else {
         	return false;
         }
+    }
+    
+    public boolean update(String table, String playerName, int sound, int vibration, int pause, int player_id, String name, int topScore, int gamesPlayed, int totalScore) {
+        ContentValues args = new ContentValues();
+        
+		args.put(KEY_NAME, playerName);
+		args.put(KEY_TOPSCORE, topScore);
+		args.put(KEY_TOTALSCORE, totalScore);
+		args.put(KEY_GAMESPLAYED, gamesPlayed);
+		return db.update(DATABASE_PTABLE, args, KEY_NAME + "='" + playerName + "'", null) > 0;
     }
 
     /**
@@ -271,28 +287,29 @@ public class TopsyTurvyDbAdapter {
     public boolean delete(String table, long rowId) {
     	if (table.equals("game"))
     		return db.delete(DATABASE_GTABLE, KEY_GROWID + "=" + rowId, null) > 0;
-    	else if (table.equals("user"))
-    		// TODO: also delete from single or multiplayer table
-    		return db.delete(DATABASE_UTABLE, KEY_UROWID + "=" + rowId, null) > 0;
+    	else if (table.equals("player"))
+    		return db.delete(DATABASE_PTABLE, KEY_PROWID + "=" + rowId, null) > 0;
     	else
     		return false;
+    }
+    
+    public boolean delete(String table, String name) {
+    	return db.delete(DATABASE_PTABLE, KEY_NAME + "='" + name + "'", null) > 0;
     }
     
     public int count(String table) {
     	Cursor cursor;
     	
-    	String sql = "SELECT COUNT(id) FROM " + table; 
-    	
-    	if (table.equals("game")) {
-    		cursor = db.rawQuery(sql, null);
-    		return cursor.getInt(0);
-    	}
-    	else if (table.equals("user")) {
-    		cursor = db.rawQuery(sql, null);
-    		return cursor.getInt(0);
-    	}
-    	else {
+    	if (table.equals("game"))
+    		cursor = db.query(DATABASE_GTABLE, new String[] {KEY_GROWID, KEY_SOUND, KEY_VIBRATION, KEY_PAUSE, KEY_PLAYERID}, null, null, null, null, null);
+    	else if (table.equals("player"))
+    		cursor = db.query(DATABASE_PTABLE, new String[] {KEY_PROWID, KEY_NAME, KEY_TOPSCORE, KEY_TOTALSCORE, KEY_GAMESPLAYED}, null, null, null, null, null);
+    	else
     		return -1;
-    	}
+    	
+    	if (cursor != null)
+    		return cursor.getCount();
+    	else
+    		return -1;
     }
 }

@@ -31,6 +31,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.ImageButton;
@@ -40,6 +41,8 @@ public class Settings extends Activity implements OnClickListener {
 	
 	// All purpose
 	Bundle bundle;
+	
+	private final int ADD_PROFILE_RESULT = 0;
 	
 	// UI elements
 	private ImageButton moreMenuSwitchProfileButton;
@@ -52,6 +55,7 @@ public class Settings extends Activity implements OnClickListener {
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.settings);
         
         // Retrieve UI elements
@@ -75,21 +79,19 @@ public class Settings extends Activity implements OnClickListener {
 		switch(src.getId()) {
 			case R.id.newProfileButton:
 				Intent newProfileIntent = new Intent(Settings.this, AddProfile.class);
-	        	startActivityForResult(newProfileIntent, 0);
+	        	startActivityForResult(newProfileIntent, ADD_PROFILE_RESULT);
 				break;
 			case R.id.switchProfileButton:
 				Intent switchProfileIntent = new Intent(Settings.this, SwitchProfile.class);
-	        	startActivityForResult(switchProfileIntent, 0);
+	        	startActivity(switchProfileIntent);
 				break;
 			case R.id.singleplayerScoresButton:
 				Intent singleplayerScoresIntent = new Intent(Settings.this, Scores.class);
-				singleplayerScoresIntent.putExtra("mode", "singleplayer");
-	        	startActivityForResult(singleplayerScoresIntent, 0);
+	        	startActivity(singleplayerScoresIntent);
 				break;
 			case R.id.multiplayerScoresButton:
 				Intent multiplayerScoresIntent = new Intent(Settings.this, Scores.class);
-				multiplayerScoresIntent.putExtra("mode", "multiplayer");
-	        	startActivityForResult(multiplayerScoresIntent, 0);
+	        	startActivity(multiplayerScoresIntent);
 				break;
 			case R.id.singleplayerHintsButton:
 	        	startActivity(new Intent(Settings.this, Hints.class));
@@ -107,14 +109,17 @@ public class Settings extends Activity implements OnClickListener {
         Toast toast;
         
         switch (resultCode) {
-        case 0:
-        	toast = Toast.makeText(Settings.this, "User Created", 5);
-			toast.show();
+        case ADD_PROFILE_RESULT:
+        	Toast.makeText(Settings.this, "New Profile Created", 5).show();
         	break;
         case -1:
-        	toast = Toast.makeText(Settings.this, "User Not Created", 5);
-			toast.show();
+        	Toast.makeText(Settings.this, "User Not Created", 5).show();
         	break;
         }
     }
+	
+	@Override
+	public void onBackPressed() {
+		finish();
+	}
 }

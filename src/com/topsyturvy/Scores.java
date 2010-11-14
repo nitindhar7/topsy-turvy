@@ -31,33 +31,30 @@ import android.app.ListActivity;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.SimpleCursorAdapter;
+import android.widget.Toast;
 
 public class Scores extends ListActivity {
 	
 	// Create database instance
 	private TopsyTurvyDbAdapter dbAdapter;
 	
-	// which mode
-	private String intent;
-	
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        
-        intent = this.getIntent().getStringExtra("mode");
-        if (intent.equals("singleplayer")) {
-        	setContentView(R.layout.scoreboard);
-        }
-        else {
-        	setContentView(R.layout.scoreboard);
-        }
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        setContentView(R.layout.scoreboard);
 
         // Create and open db
         dbAdapter = new TopsyTurvyDbAdapter(this);
         dbAdapter.open();
 
         populateList();
+        
+        // Remove divider under each list item
+    	getListView().setDivider(null);
+    	getListView().setDividerHeight(0);
         
         // Register menu, used for long press delete
         registerForContextMenu(getListView());
@@ -73,10 +70,15 @@ public class Scores extends ListActivity {
         startManagingCursor(c);
 
         String[] from = new String[] { TopsyTurvyDbAdapter.KEY_NAME };
-        int[] to = new int[] { R.id.listuser };
+        int[] to = new int[] { R.id.playerName };
         
         // Now create an array adapter and set it to display using our row
         SimpleCursorAdapter users = new SimpleCursorAdapter(this, R.layout.users_row, c, from, to);
         setListAdapter(users);
     }
+	
+	@Override
+	public void onBackPressed() {
+		finish();
+	}
 }

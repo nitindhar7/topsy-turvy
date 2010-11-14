@@ -47,7 +47,7 @@ public class DrawModel {
 	}
 
 	protected static ShortBuffer makeShortBuffer(short[] arr) {
-		ByteBuffer bb = ByteBuffer.allocateDirect(arr.length * 4);
+		ByteBuffer bb = ByteBuffer.allocateDirect(arr.length * 2);
 		bb.order(ByteOrder.nativeOrder());
 		ShortBuffer ib = bb.asShortBuffer();
 		ib.put(arr);

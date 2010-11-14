@@ -2,7 +2,9 @@ package com.topsyturvy;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
@@ -19,11 +21,12 @@ public class AddProfile extends Activity implements OnClickListener {
 	private TopsyTurvyDbAdapter dbAdapter;
 	
 	// Store player name
-	private String userName;
+	private String playerName;
 	
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.add_profile);
         
         // Create and open db
@@ -39,20 +42,36 @@ public class AddProfile extends Activity implements OnClickListener {
 	}
 	
 	public void onClick(View src) {
+		long playerId;
+		int playerCount;
+		
 		switch(src.getId()) {
 			case R.id.save_user:
-				userName = enterUser.getText().toString();
+				playerName = enterUser.getText().toString();
 
-	    		if (userName.length() == 0) {
-	    			Toast toast = Toast.makeText(AddProfile.this, "User Not Created", 5);
-	    			toast.show();
-	    		}
+	    		if (playerName.length() == 0)
+	    			Toast.makeText(AddProfile.this, "Player Not Created", 5).show();
 	    		else {
-	    			dbAdapter.create("user", 0, 0, 0, 0, userName);
+	    			playerId = dbAdapter.create("player", 0, 0, 0, 0, playerName);
+	    			playerCount = dbAdapter.count("player");
+	    			
+	    			if (playerId != -1 && playerCount > 1)
+		    			dbAdapter.update("game", 1, 1, 1, 0, (int) playerId, null, 1, 1, 1);
+	    			else if (playerId != -1 && playerCount == 1) {
+	    				dbAdapter.create("game", 1, 1, 0, (int) playerId, null);
+	    			}
+		    		
+	    			dbAdapter.close();
 	    			setResult(0);
 	    			finish();
 	    		}
 	    		break;
 		}
+	}
+	
+	@Override
+	public void onBackPressed() {
+		dbAdapter.close();
+		finish();
 	}
 }

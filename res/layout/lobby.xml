@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_height="fill_parent"
 	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
 	android:background="#0099FF">
 	<RelativeLayout
 		android:id="@+id/RelativeLayout01"
@@ -13,17 +13,17 @@
 		<TextView
 			android:layout_height="wrap_content"
 			android:layout_width="fill_parent"
-			android:id="@+id/switchProfileLabel"
-			android:background="@drawable/switch_profile"
+			android:id="@+id/lobbyLabel"
+			android:background="@drawable/lobby"
 			android:height="75px"
 			android:layout_marginLeft="10dp"
 			android:layout_marginRight="10dp"
 			android:layout_marginTop="10dp"></TextView>
 		<ListView
 			android:layout_height="fill_parent"
-			android:layout_below="@+id/switchProfileLabel"
+			android:layout_below="@+id/lobbyLabel"
 			android:layout_centerHorizontal="true"
-			android:id="@+id/android:list"
+			android:id="@+id/lobbyList"
 			android:layout_margin="10dp"
 			android:layout_width="fill_parent"
 			android:dividerHeight="0dp">
