@@ -33,7 +33,6 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 public class TopsyTurvyDbAdapter {
 	
@@ -74,7 +73,7 @@ public class TopsyTurvyDbAdapter {
     private static final String DATABASE_PCREATE	= "CREATE TABLE " + DATABASE_PTABLE + " (" +
     												  KEY_PROWID	  + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
     												  KEY_NAME		  + " TEXT NULL, " +
-												      KEY_TOPSCORE	  + " INTEGER DEFAULT 1 NOT NULL, " +
+												      KEY_TOPSCORE	  + " INTEGER DEFAULT 0 NOT NULL, " +
 												      KEY_TOTALSCORE  + " INTEGER DEFAULT 0 NOT NULL, " +
 												      KEY_GAMESPLAYED + " INTEGER DEFAULT 0 NOT NULL);";
 	
@@ -195,7 +194,7 @@ public class TopsyTurvyDbAdapter {
 		return mCursor;
     }
     
-    public Cursor find(String table, String position) {
+    public Cursor find(String table) {
     	Cursor mCursor;
     	
     	if (table.equals("game"))
@@ -205,14 +204,10 @@ public class TopsyTurvyDbAdapter {
     	else
     		return null;
     	
-    	if (position.equals("first"))
-    		mCursor.moveToFirst();
-    	else if (position.equals("last"))
-    		mCursor.moveToLast();
+    	if (mCursor.moveToNext())
+    		return mCursor;
     	else
     		return null;
-    	
-    	return mCursor;
     }
     
     /**

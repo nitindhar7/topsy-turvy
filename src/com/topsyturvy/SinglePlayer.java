@@ -30,10 +30,9 @@ package com.topsyturvy;
 import org.jbox2d.common.Vec2;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -49,7 +48,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Chronometer;
 import android.widget.Chronometer.OnChronometerTickListener;
-import android.widget.Toast;
 
 public class SinglePlayer extends Activity
 {
@@ -62,14 +60,13 @@ public class SinglePlayer extends Activity
 	private Display display;
 	private Chronometer chrono;
 
-	private String currentTime = "01.00";
+	private String currentTime = "00.30";
 	private int count = 1;
 	private int score = 0;
-	private String activePlayer;
+	private int activePlayerID;
 	
 	// Create database instance
 	public TopsyTurvyDbAdapter dbAdapter;
-	private AlertDialog.Builder builder;
 	
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -77,7 +74,9 @@ public class SinglePlayer extends Activity
 		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-		activePlayer = getIntent().getStringExtra("activePlayer");
+		activePlayerID = getIntent().getIntExtra("activePlayerID", -1);
+		dbAdapter = new TopsyTurvyDbAdapter(this);
+		dbAdapter.open();
 		
 		// Get services
 		vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
@@ -112,57 +111,31 @@ public class SinglePlayer extends Activity
 					currentTime = minutes + ":" + seconds;
 					arg0.setText(currentTime);
 					count++;
-					score += 10;
+					score += 1;
 				}
 				else {
-					long minutes = 0;
-					long seconds = 30;
-					currentTime = minutes + ":" + seconds;
-					arg0.setText(currentTime);
+					Cursor cursor;
+					int topScore;
+					int gamesPlayed;
+					int totalScore;
+
+					arg0.setText("0:30");
 					chrono.stop();
-					//dbAdapter.update("player", activePlayer, 1, 1, 1, null, null, score, 1, score);
+					
+					cursor = dbAdapter.find("player", activePlayerID);
+					if (cursor != null) {
+						topScore = (cursor.getInt(2) < score) ? score : cursor.getInt(2);
+						gamesPlayed = cursor.getInt(4) + 1;
+						totalScore = cursor.getInt(3) + score;
+						
+						dbAdapter.update("player", cursor.getInt(0), 0, 0, 0, 0, cursor.getString(1), topScore, gamesPlayed, totalScore);
+					}
+					
 					setResult(11);
 					finish();
 				}
         	}
         });
-	}
-	
-	@Override
-	protected void onStart()
-	{
-		super.onStart();
-		
-		String playerName;
-    	int playerCount;
-    	int activePlayerId;
-    	
-        dbAdapter = new TopsyTurvyDbAdapter(this);
-        dbAdapter.open();
-		playerCount = dbAdapter.count("player");
-		
-		builder = new AlertDialog.Builder(this);
-	    builder.setMessage("No Profile Selected\nCreate New Profile?")
-	           .setCancelable(false)
-	           .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-	               public void onClick(DialogInterface dialog, int id) {
-						Intent addProfile = new Intent(SinglePlayer.this, AddProfile.class);
-						startActivity(addProfile);
-	               }
-	           })
-	           .setNegativeButton("No", new DialogInterface.OnClickListener() {
-	               public void onClick(DialogInterface dialog, int id) {
-	            	   dbAdapter.close();
-	                   finish();
-	               }
-	           });
-	    AlertDialog alert = builder.create();
-		
-		if (playerCount < 1)
-			alert.show();
-		else {
-			dbAdapter.find("game", "last");
-		}
 	}
 	
 	@Override
@@ -183,6 +156,7 @@ public class SinglePlayer extends Activity
 	@Override
 	public void onBackPressed() {
 		dbAdapter.close();
+		setResult(13);
 		finish();
 	}
 	
@@ -217,6 +191,7 @@ public class SinglePlayer extends Activity
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {
 	        case R.id.quit:
+	        	dbAdapter.close();
 	        	finish();
 	        	break;
 	        case R.id.restart:
@@ -247,5 +222,20 @@ public class SinglePlayer extends Activity
 	public void doVibrate(int seconds, long[] pattern)
 	{
 		vibrator.vibrate(pattern, seconds);
+	}
+	
+	public int getScore()
+	{
+		return this.score + (30-count)*2;
+	}
+	
+	public TopsyTurvyDbAdapter getTopsyTurvyDbAdapter()
+	{
+		return dbAdapter;
+	}
+	
+	public int getActivePlayer()
+	{
+		return activePlayerID;
 	}
 }

@@ -30,9 +30,12 @@ package com.topsyturvy;
 import android.app.ListActivity;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class Scores extends ListActivity {
@@ -48,9 +51,6 @@ public class Scores extends ListActivity {
 
         // Create and open db
         dbAdapter = new TopsyTurvyDbAdapter(this);
-        dbAdapter.open();
-
-        populateList();
         
         // Remove divider under each list item
     	getListView().setDivider(null);
@@ -60,25 +60,51 @@ public class Scores extends ListActivity {
         registerForContextMenu(getListView());
 	}
 	
+	@Override
+	public void onStart() {
+		super.onStart();
+		dbAdapter.open();
+		populateList();
+	}
+	
+	@Override
+	public void onBackPressed() {
+		dbAdapter.close();
+		finish();
+	}
+	
 	/**
 	 * Retreive all user names, put into array, insert each element into textview
 	 * and populate listview with textviews
 	 */
 	private void populateList() {
 		// Get all of the notes from the database and create the item list
-        Cursor c = dbAdapter.findAll("user");
+        Cursor c = dbAdapter.findAll("player");
         startManagingCursor(c);
 
         String[] from = new String[] { TopsyTurvyDbAdapter.KEY_NAME };
         int[] to = new int[] { R.id.playerName };
         
         // Now create an array adapter and set it to display using our row
-        SimpleCursorAdapter users = new SimpleCursorAdapter(this, R.layout.users_row, c, from, to);
-        setListAdapter(users);
+        SimpleCursorAdapter players = new SimpleCursorAdapter(this, R.layout.users_row, c, from, to);
+        setListAdapter(players);
     }
 	
-	@Override
-	public void onBackPressed() {
-		finish();
-	}
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		Cursor cursor;
+		String playerName;
+		int topScore;
+		int gamesPlayed;
+		
+		playerName = ((TextView) v).getText().toString();
+		cursor = dbAdapter.find_by_name(playerName);
+		
+		if (cursor != null) {
+			topScore = cursor.getInt(2);
+			gamesPlayed = cursor.getInt(4);
+			Toast.makeText(this , "Top Score: " + Float.toString(topScore) + " | Games Played: " + Float.toString(gamesPlayed), Toast.LENGTH_LONG).show();
+		}
+		else
+			Toast.makeText(this , "Cannot retrieve scores", Toast.LENGTH_LONG).show();
+    }
 }

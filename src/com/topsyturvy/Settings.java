@@ -42,7 +42,7 @@ public class Settings extends Activity implements OnClickListener {
 	// All purpose
 	Bundle bundle;
 	
-	private final int ADD_PROFILE_RESULT = 0;
+	private final int ADD_PROFILE_RESULT = 10;
 	
 	// UI elements
 	private ImageButton moreMenuSwitchProfileButton;
@@ -105,8 +105,6 @@ public class Settings extends Activity implements OnClickListener {
 	@Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-        
-        Toast toast;
         
         switch (resultCode) {
         case ADD_PROFILE_RESULT:

@@ -28,7 +28,9 @@
 package com.topsyturvy;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -57,8 +59,9 @@ public class TopsyTurvy extends Activity implements OnClickListener {
 	private Button mainMenuSinglePlayerButton;
 	private Button mainMenuMultiPlayerButton;
 	private Button mainMenuSettingsButton;
-	
-	private String playerName;
+
+	private AlertDialog.Builder builder;
+	private AlertDialog alert;
 	
 	// Return values
 	private int SINGLEPLAYER_RESULT;
@@ -82,27 +85,34 @@ public class TopsyTurvy extends Activity implements OnClickListener {
 		// Set sound setting using value from db
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         audioManager.setMode(getAudioMode());
+
+        dbAdapter = new TopsyTurvyDbAdapter(this);
         
         // Set vibration setting using value from db
         setVibrator();
+        
+        builder = new AlertDialog.Builder(this);
+	    builder.setMessage("No Profile Selected\nCreate New Profile?")
+	           .setCancelable(false)
+	           .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+	               public void onClick(DialogInterface dialog, int id) {
+						Intent addProfile = new Intent(TopsyTurvy.this, AddProfile.class);
+						startActivity(addProfile);
+	               }
+	           })
+	           .setNegativeButton("No", new DialogInterface.OnClickListener() {
+	               public void onClick(DialogInterface dialog, int id) {
+	            	   dialog.cancel();
+	               }
+	           });
+	    alert = builder.create();
     }
     
     @Override
 	protected void onStart()
 	{
 		super.onStart();
-    	int playerCount;
-    	int activePlayerId;
-    	
-        dbAdapter = new TopsyTurvyDbAdapter(this);
         dbAdapter.open();
-		playerCount = dbAdapter.count("player");
-		
-		if (playerCount > 0) {
-			activePlayerId = dbAdapter.find("game", "first").getInt(4);
-			playerName = dbAdapter.find("player", activePlayerId).getString(1);
-			Toast.makeText(this , "Hi " + playerName + "!", Toast.LENGTH_LONG).show();
-		}
 	}
     
     @Override
@@ -119,20 +129,36 @@ public class TopsyTurvy extends Activity implements OnClickListener {
 	}
 
     public void onClick(View src) {
+    	int gameCount;
+    	int activePlayerId;
+    	
+    	gameCount = dbAdapter.count("game");
+    	
 		switch(src.getId()) {
 			case R.id.mainMenuSinglePlayer:
-				Intent singlePlayerGame = new Intent(TopsyTurvy.this, SinglePlayer.class);
-				singlePlayerGame.putExtra("activePlayer", playerName);
-	        	startActivityForResult(singlePlayerGame, SINGLEPLAYER_RESULT);
+				if (gameCount > 0) {
+					activePlayerId = dbAdapter.find("game").getInt(4);
+					Intent singlePlayerGame = new Intent(TopsyTurvy.this, SinglePlayer.class);
+					singlePlayerGame.putExtra("activePlayerID", activePlayerId);
+		        	startActivityForResult(singlePlayerGame, SINGLEPLAYER_RESULT);
+				}
+				else
+					alert.show();
 				break;
+				
 			case R.id.mainMenuMultiPlayer:
-				Intent multiPlayerGame = new Intent(TopsyTurvy.this, Lobby.class);
-	        	startActivity(multiPlayerGame);
+				if (gameCount > 0) {
+					Intent multiPlayerGame = new Intent(TopsyTurvy.this, Lobby.class);
+		        	startActivity(multiPlayerGame);
+				}
+				else
+					alert.show();
 				break;
+				
 			case R.id.mainMenuSettings:
 				Intent settings = new Intent(TopsyTurvy.this, Settings.class);
 	        	startActivity(settings);
-				break;
+	        	break;
 		}
 	}
     

@@ -60,9 +60,8 @@ public class SwitchProfile extends ListActivity {
         
         // Create and open db
         dbAdapter = new TopsyTurvyDbAdapter(this);
-        dbAdapter.open();
     
-    	populateList();
+    	
     	
     	// Remove divider under each list item
     	getListView().setDivider(null);
@@ -70,6 +69,13 @@ public class SwitchProfile extends ListActivity {
 
         // Register menu, used for long press delete
         registerForContextMenu(getListView());
+	}
+	
+	@Override
+	public void onStart() {
+		super.onStart();
+		dbAdapter.open();
+		populateList();
 	}
 	
 	@Override
@@ -92,10 +98,7 @@ public class SwitchProfile extends ListActivity {
 	 */
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        // TODO: set title to name of player clicked
-        
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-	    //selectedWordId = info.id;
         
         menu.setHeaderIcon(R.drawable.ic_menu_player_info);
         menu.setHeaderTitle(((TextView) info.targetView).getText());
@@ -115,6 +118,7 @@ public class SwitchProfile extends ListActivity {
     public boolean onContextItemSelected(MenuItem item) {
     	AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
     	String playerName = ((TextView) info.targetView).getText().toString();
+    	Cursor cursor;
     	
         switch(item.getItemId()) {
             case Menu.FIRST:
@@ -128,7 +132,13 @@ public class SwitchProfile extends ListActivity {
                 return true;
             case Menu.FIRST + 2:
                 dbAdapter.delete("player", playerName);
+                
+                cursor = dbAdapter.find("game");
+                if (cursor != null)
+                	dbAdapter.delete("game", cursor.getInt(0));
+                
                 populateList();
+                
                 return true;
             case Menu.FIRST + 3:        
             	dbAdapter.update("player", playerName, 1, 1, 0, -1, null, 0, 0, 0);
@@ -167,6 +177,7 @@ public class SwitchProfile extends ListActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {
 	        case R.id.newProfile:
+	        	dbAdapter.close();
 	        	Intent addProfile = new Intent(SwitchProfile.this, AddProfile.class);
 				startActivity(addProfile);
 	        	break;

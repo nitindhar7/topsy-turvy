@@ -13,6 +13,7 @@ import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -35,9 +36,7 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 	private int height;
 
 	public Body pTopBody;
-//	private Body[] pFenceBody;
 	public BodyDef pTopBodyDef;
-//	private BodyDef[] pFenceBodyDef;
 	private CircleDef pTopShape;	
 	
 	private DrawModel gBackground;
@@ -45,9 +44,7 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 	private DrawModel gTop;
 	private DrawModel gFence, gDestination;
 	public Vec2 tempVec;
-	private Vec2 tableBoundary;
 	public boolean flingReleased;
-//	Body tempBody;
 	
 	float size =.2f;
     float FenceAttr[][]=new float[][]	// { x, y, rot, sizeX, sizeY}
@@ -198,8 +195,13 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 		Vec2 vec;
 		float rot;
 		Body tempBody;
-		Shape tempShape;
-		long[] pattern = { 500, 300 }; 
+		Shape tempShape; 
+		int score;
+		TopsyTurvyDbAdapter dbAdapter;
+		Cursor cursor;
+		int topScore;
+		int gamesPlayed;
+		int totalScore;
 
 		gl.glClearColor(0, 0, 0, 0);
 		gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
@@ -220,7 +222,7 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 						if (tempBody.getPosition().x < -tempVec.x*4/7 || tempBody.getPosition().x > 
 								tempVec.x*4/7 || tempBody.getPosition().y < -tempVec.y/2 || 
 									tempBody.getPosition().y > tempVec.y/2) {
-							this.currentSPGame.doVibrate(500);
+							this.currentSPGame.doVibrate(50);
 							this.currentSPGame.setResult(12);
 							this.currentSPGame.finish();
 						}
@@ -232,7 +234,18 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 								tempBody.getPosition().y < gDestination.getPosition().y + 1 &&
 								tempBody.getPosition().y > gDestination.getPosition().y - 1){
 
-							this.currentSPGame.doVibrate(500);
+							score = this.currentSPGame.getScore();
+							dbAdapter = this.currentSPGame.getTopsyTurvyDbAdapter();
+							cursor = dbAdapter.find("player", this.currentSPGame.getActivePlayer());
+							if (cursor != null) {
+								topScore = (cursor.getInt(2) < score) ? score : cursor.getInt(2);
+								gamesPlayed = cursor.getInt(4) + 1;
+								totalScore = cursor.getInt(3) + score;
+								
+								dbAdapter.update("player", cursor.getInt(0), 0, 0, 0, 0, cursor.getString(1), topScore, gamesPlayed, totalScore);
+							}
+							
+							this.currentSPGame.doVibrate(50);
 							this.currentSPGame.setResult(10);
 							this.currentSPGame.finish();
 						}	
