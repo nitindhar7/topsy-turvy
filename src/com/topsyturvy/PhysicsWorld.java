@@ -1,6 +1,7 @@
 package com.topsyturvy;
 
 import org.jbox2d.collision.AABB;
+import org.jbox2d.collision.PolygonDef;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
@@ -28,6 +29,30 @@ public class PhysicsWorld
         doSleep	= false;
         world	= new World(worldAABB, gravity, doSleep);
     }
+    
+    public void addFence(float x, float y, float xr, float yr, float angle, boolean dynamic, boolean flag, int count)
+    {
+		BodyDef groundBodyDef;
+		groundBodyDef = new BodyDef();
+		groundBodyDef.position.set(new Vec2(x, y));
+		groundBodyDef.angle = angle;
+		Body groundBody = world.createBody(groundBodyDef);
+		
+		PolygonDef groundShapeDef;
+		groundShapeDef = new PolygonDef();
+		groundShapeDef.setAsBox(xr, yr);
+		groundShapeDef.density = 1.0f;
+		groundShapeDef.friction = 1.0f;
+		if(count == 1 || count == 9)
+		    groundShapeDef.restitution = 2.0f;
+		
+		groundBody.createShape(groundShapeDef);
+		
+		if (flag)
+			groundBody.setUserData("line");
+		else
+			groundBody.setUserData("fence"+count+1);
+	}
 
     public void setGravity(float componentX, float componentY)
     {

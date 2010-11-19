@@ -13,17 +13,19 @@ class TopsyTurvyGLSurfaceView extends GLSurfaceView
 	public TopsyTurvyRenderer renderer;
 	private Display display;
 
-	public TopsyTurvyGLSurfaceView(Context context, SensorManager sensorMgr, Display display, PhysicsWorld pWorld)
+	public TopsyTurvyGLSurfaceView(Context context, SensorManager sensorMgr, Display display, SinglePlayer currentSPGame)
 	{
 		super(context);
 
 		setDisplay(display);
-		renderer = new TopsyTurvyRenderer(context, sensorMgr, display, pWorld);
+		renderer = new TopsyTurvyRenderer(context, sensorMgr, display, currentSPGame);
 		setRenderer(renderer);
 	}
 
 	public boolean onTouchEvent(final MotionEvent event)
 	{
+        renderer.setSize(this.getWidth(),this.getHeight());
+
 		queueEvent(new Runnable() {
 			public void run()
 			{

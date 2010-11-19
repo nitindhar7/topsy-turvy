@@ -131,7 +131,8 @@ public class SwitchProfile extends ListActivity {
                 populateList();
                 return true;
             case Menu.FIRST + 3:        
-                // TODO: reset scores for player
+            	dbAdapter.update("player", playerName, 1, 1, 0, -1, null, 0, 0, 0);
+            	Toast.makeText(this , "Profile Resetted!", Toast.LENGTH_LONG).show();
                 return true;
         }
         

@@ -33,7 +33,6 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -58,6 +57,11 @@ public class TopsyTurvy extends Activity implements OnClickListener {
 	private Button mainMenuSinglePlayerButton;
 	private Button mainMenuMultiPlayerButton;
 	private Button mainMenuSettingsButton;
+	
+	private String playerName;
+	
+	// Return values
+	private int SINGLEPLAYER_RESULT;
 	
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,8 +91,6 @@ public class TopsyTurvy extends Activity implements OnClickListener {
 	protected void onStart()
 	{
 		super.onStart();
-		
-		String playerName;
     	int playerCount;
     	int activePlayerId;
     	
@@ -115,12 +117,13 @@ public class TopsyTurvy extends Activity implements OnClickListener {
     	dbAdapter.close();
 		finish();
 	}
-    
+
     public void onClick(View src) {
 		switch(src.getId()) {
 			case R.id.mainMenuSinglePlayer:
 				Intent singlePlayerGame = new Intent(TopsyTurvy.this, SinglePlayer.class);
-	        	startActivity(singlePlayerGame);
+				singlePlayerGame.putExtra("activePlayer", playerName);
+	        	startActivityForResult(singlePlayerGame, SINGLEPLAYER_RESULT);
 				break;
 			case R.id.mainMenuMultiPlayer:
 				Intent multiPlayerGame = new Intent(TopsyTurvy.this, Lobby.class);
@@ -153,5 +156,24 @@ public class TopsyTurvy extends Activity implements OnClickListener {
     	
     	if (vibration == 0)
     		vibrator.cancel();
+    }
+    
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+                      
+        switch (resultCode) {
+	        case 10:
+	        	Toast.makeText(getApplicationContext() , "YOU WIN!", Toast.LENGTH_LONG).show();
+	        	break;
+	        case 11:
+	        	Toast.makeText(getApplicationContext() , "TIME OVER!!!!!", Toast.LENGTH_LONG).show();
+	        	break;
+	        case 12:
+	        	Toast.makeText(getApplicationContext() , "YOU FELL!!!!!", Toast.LENGTH_LONG).show();
+	        	break;
+        }
+        
+        Intent scores = new Intent(TopsyTurvy.this, Scores.class);
+    	startActivity(scores);
     }
 }
