@@ -165,7 +165,9 @@ public class SinglePlayer extends Activity {
 							dbAdapter.update(cursor.getString(0), null, topScore, totalScore, gamesPlayed, -1, -1);
 						}
 						
-						setResult(11);
+						Intent i = new Intent();
+						i.putExtra("score", score);
+						setResult(11, i);
 						finish();
 	               }
 	           });

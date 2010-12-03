@@ -14,9 +14,10 @@ import android.widget.Toast;
 public class EditPlayer extends Activity implements OnClickListener {
 	
 	// UI
-	private EditText playerName;
-	private TextView savePlayer;
+	private EditText editPlayerName;
+	private TextView editPlayerSaveButton;
 	private String enteredPlayerName;
+	private String originalPlayerName;
 	
 	// DB
 	private TopsyTurvyDbAdapter dbAdapter;
@@ -32,13 +33,13 @@ public class EditPlayer extends Activity implements OnClickListener {
         dbAdapter.open();
         
         // UI
-        playerName	= (EditText)findViewById(R.id.editPlayerName);
-        savePlayer	= (TextView)findViewById(R.id.editPlayerSaveButton);
-        enteredPlayerName = getIntent().getStringExtra("playerName");
-        playerName.setText(enteredPlayerName);
+        editPlayerName			= (EditText)findViewById(R.id.editPlayerName);
+        editPlayerSaveButton	= (TextView)findViewById(R.id.editPlayerSaveButton);
+        originalPlayerName		= getIntent().getStringExtra("playerName");
+        editPlayerName.setText(originalPlayerName);
         
         // Listeners
-        savePlayer.setOnClickListener(this);
+        editPlayerSaveButton.setOnClickListener(this);
 	}
 	
 	@Override
@@ -69,8 +70,8 @@ public class EditPlayer extends Activity implements OnClickListener {
 	
 	public void onClick(View src) {
 		switch(src.getId()) {
-			case R.id.newPlayerSaveButton:
-				enteredPlayerName = playerName.getText().toString();
+			case R.id.editPlayerSaveButton:
+				enteredPlayerName = editPlayerName.getText().toString();
 
 	    		if (enteredPlayerName.length() == 0)
 	    			Toast.makeText(EditPlayer.this, "Player Not Editted", 5).show();
@@ -88,7 +89,7 @@ public class EditPlayer extends Activity implements OnClickListener {
 		int numRows = 0;
 		Cursor cursor;
 
-		cursor = dbAdapter.find(TopsyTurvyDbAdapter.DATABASE_PLAYERS_TABLE, "name = '" + playerName + "'");
+		cursor = dbAdapter.find(TopsyTurvyDbAdapter.DATABASE_PLAYERS_TABLE, "name = '" + originalPlayerName + "'");
 		
 		if (cursor != null && cursor.getCount() > 0)
 			numRows = dbAdapter.update(cursor.getString(0), playerName, -1, -1, -1, -1, -1);
