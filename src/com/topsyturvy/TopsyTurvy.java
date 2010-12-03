@@ -96,6 +96,9 @@ public class TopsyTurvy extends Activity implements OnClickListener {
 		
 		if (dbAdapter.state == 0)
 			dbAdapter.open();
+		
+		if (activePlayer != null)
+			Toast.makeText(getApplicationContext() , "Hi, " + activePlayer + "!", Toast.LENGTH_LONG).show();
 	}
     
     @Override
