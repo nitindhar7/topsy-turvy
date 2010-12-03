@@ -8,8 +8,7 @@
 	<RelativeLayout
 		android:id="@+id/RelativeLayout01"
 		android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
-		android:background="@drawable/main_menu_bg">
+		android:layout_height="fill_parent" android:background="@drawable/main_menu_bg_new">
 		<TextView
 			android:layout_height="wrap_content"
 			android:layout_gravity="center"
@@ -21,39 +20,36 @@
 			android:layout_width="fill_parent"
 			android:gravity="center"
 			android:background="@drawable/logo"
-			android:height="85px" android:layout_marginTop="10dp"></TextView>
+			android:layout_marginTop="10dp" android:minHeight="130dp"></TextView>
 		<Button
 			android:id="@+id/mainMenuSinglePlayer"
 			android:layout_width="fill_parent"
-			android:layout_height="50dp"
 			android:layout_marginBottom="10dp"
 			android:layout_below="@+id/logo"
 			android:layout_gravity="center"
 			android:layout_marginRight="10dp"
 			android:layout_marginLeft="160dp"
 			android:background="@drawable/button_main_menu_play"
-			android:layout_marginTop="60dp"></Button>
+			android:layout_marginTop="60dp" android:layout_height="70dp"></Button>
 		<Button
 			android:id="@+id/mainMenuMultiPlayer"
 			android:layout_gravity="center"
 			android:layout_width="fill_parent"
-			android:layout_height="50dp"
 			android:layout_marginBottom="10dp"
 			android:layout_below="@+id/mainMenuSinglePlayer"
 			android:layout_marginTop="20dp"
 			android:background="@drawable/button_main_menu_multiplayer"
 			android:layout_marginLeft="160dp"
-			android:layout_marginRight="10dp"></Button>
+			android:layout_marginRight="10dp" android:minHeight="100dp" android:height="100dp" android:layout_height="70dp"></Button>
 		<Button
 			android:id="@+id/mainMenuSettings"
 			android:layout_gravity="center"
 			android:layout_width="fill_parent"
-			android:layout_height="50dp"
 			android:layout_marginBottom="10dp"
 			android:layout_below="@+id/mainMenuMultiPlayer"
 			android:layout_marginTop="20dp"
 			android:background="@drawable/button_main_menu_more"
 			android:layout_marginLeft="160dp"
-			android:layout_marginRight="10dp"></Button>
+			android:layout_marginRight="10dp" android:minHeight="100dp" android:height="100dp" android:layout_height="70dp"></Button>
 	</RelativeLayout>
 </LinearLayout>

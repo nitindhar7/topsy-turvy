@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_height="fill_parent"
+	android:layout_width="fill_parent"
+	android:background="@drawable/full_bg2"
+	android:orientation="vertical">
+	<TextView
+		android:layout_height="wrap_content"
+		android:layout_width="fill_parent"
+		android:id="@+id/playersLabel"
+		android:background="@drawable/hints_menu_label"
+		android:layout_marginBottom="20dp"
+		android:minHeight="60dp"></TextView>
+	<TextView
+		android:id="@+id/TextView01"
+		android:layout_height="wrap_content"
+		android:layout_width="fill_parent"
+		android:textSize="20sp"
+		android:text="Fling to Start"
+		android:padding="10dp"
+		android:textColor="#FFF"></TextView>
+	<ImageView
+		android:id="@+id/ImageView02"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:background="@drawable/hint1"
+		android:layout_gravity="center_horizontal"></ImageView>
+	<TextView
+		android:id="@+id/TextView02"
+		android:layout_height="wrap_content"
+		android:layout_width="fill_parent"
+		android:textSize="20sp"
+		android:padding="10dp"
+		android:textColor="#FFF" android:text="Reach destination in the allotted time"></TextView>
+	<ImageView
+		android:id="@+id/ImageView01"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:background="@drawable/hint2"
+		android:layout_gravity="center_horizontal"></ImageView>
+	<TextView
+		android:id="@+id/TextView03"
+		android:layout_height="wrap_content"
+		android:layout_width="fill_parent"
+		android:textSize="20sp"
+		android:padding="10dp"
+		android:textColor="#FFF" android:text="Dont fall off the table!"></TextView>
+	<ImageView
+		android:id="@+id/ImageView03"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:background="@drawable/hint3"
+		android:layout_gravity="center_horizontal"></ImageView>
+</LinearLayout>

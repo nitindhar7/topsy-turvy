@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<TextView
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/playerName"
-	android:textStyle="bold"
-	android:textColor="#666"
-	android:width="200dp"
-	android:height="50px"
-	android:layout_width="fill_parent" android:background="@drawable/switch_profile_list" android:layout_height="wrap_content" android:gravity="center_vertical" android:paddingLeft="10dp" android:paddingRight="10dp"/>

@@ -14,16 +14,14 @@ import android.widget.Toast;
 
 public class PlayerInfo extends Activity {
 	
-	// Create database instance
+	// DB
 	private TopsyTurvyDbAdapter dbAdapter;
 	
+	// UI
 	private TextView playerName;
 	private TextView playerTopScore;
-	private TextView playerGamesPlayed;
 	private TextView playerAverageScore;
-	private TextView playerSoundPref;
-	private TextView playerVibrationPref;
-	
+	private TextView playerGamesPlayed;
 	private String selectedPlayerName;
 	
 	@Override
@@ -33,42 +31,25 @@ public class PlayerInfo extends Activity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.player_info);
         
+        // DB
+        dbAdapter = new TopsyTurvyDbAdapter(this);
+        dbAdapter.open();
+        
+        // UI
         playerName = (TextView)findViewById(R.id.playerInfoName);
-    	playerTopScore = (TextView)findViewById(R.id.topScoreValue);
-    	playerGamesPlayed = (TextView)findViewById(R.id.gamesPlayedValue);
-    	playerAverageScore = (TextView)findViewById(R.id.averageScoreValue);
-    	playerSoundPref = (TextView)findViewById(R.id.soundValue);
-    	playerVibrationPref = (TextView)findViewById(R.id.vibrationValue);
-    	
+    	playerTopScore = (TextView)findViewById(R.id.playerInfoTopScore);
+    	playerAverageScore = (TextView)findViewById(R.id.playerInfoAverage);
+    	playerGamesPlayed = (TextView)findViewById(R.id.playerInfoGames);
     	selectedPlayerName = getIntent().getStringExtra("playerName");
 	}
 	
 	@Override
-	protected void onStart()
-	{
-		super.onStart();
-		
-		Cursor cursor;
-    	
-        dbAdapter = new TopsyTurvyDbAdapter(this);
-        dbAdapter.open();
-        
-        cursor = dbAdapter.find_by_name(selectedPlayerName);
-        
-        if (cursor != null) {
-        	playerName.setText(cursor.getString(1));
-        	playerTopScore.setText(Float.toString(cursor.getInt(2)));
-        	playerGamesPlayed.setText(Float.toString(cursor.getInt(3)));
-        	playerAverageScore.setText(Float.toString(cursor.getInt(4)));
-        }
-        else;
-        
-	}
-	
-	@Override
-	protected void onResume()
-	{
+	protected void onResume() {
 		super.onResume();
+		
+		if (dbAdapter.state == 0)
+			dbAdapter.open();
+		populateFields();
 	}
 
 	@Override
@@ -86,30 +67,60 @@ public class PlayerInfo extends Activity {
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		Cursor cursor;
-		
+
 	    switch (item.getItemId()) {
-	        case R.id.editProfile:
-	        	Intent editProfile = new Intent(PlayerInfo.this, EditProfile.class);
-				startActivity(editProfile);
+	        case R.id.editPlayer:
+	        	Intent editPlayer = new Intent(PlayerInfo.this, EditPlayer.class);
+            	editPlayer.putExtra("playerName", selectedPlayerName);
+	        	startActivity(editPlayer);
 	        	break;
-	        case R.id.resetProfile:
-	        	dbAdapter.update("player", selectedPlayerName, 1, 1, 0, -1, null, 0, 0, 0);
-	        	cursor = dbAdapter.find_by_name(selectedPlayerName);
-	            
-	            if (cursor != null) {
-	            	playerName.setText(cursor.getString(1));
-	            	playerTopScore.setText(Float.toString(cursor.getInt(2)));
-	            	playerGamesPlayed.setText(Float.toString(cursor.getInt(3)));
-	            	playerAverageScore.setText(Float.toString(cursor.getInt(4)));
-	            	Toast.makeText(this , "Profile Resetted!", Toast.LENGTH_LONG).show();
-	            }
+	        case R.id.resetPlayer:
+	        	resetPlayerScores(selectedPlayerName);
 	        	break;
-	        case R.id.deleteProfile:
-	        	dbAdapter.delete("player", selectedPlayerName);
+	        case R.id.deletePlayer:
+	        	deletePlayer(selectedPlayerName);
+	        	dbAdapter.close();
 	        	finish();
 	        	break;
 	    }
 	    return true;
+	}
+	
+	private void populateFields() {
+		Cursor cursor;
+		int avg;
+
+        cursor = dbAdapter.find(TopsyTurvyDbAdapter.DATABASE_PLAYERS_TABLE, "name = '" + selectedPlayerName + "'");
+
+        if (cursor != null) {
+        	avg = (cursor.getInt(3)/cursor.getInt(4));
+        	
+        	playerName.setText(cursor.getString(1));
+        	playerTopScore.setText("Top Score: " + Integer.toString(cursor.getInt(2)));
+        	playerAverageScore.setText("Average Score: " + Integer.toString(avg));
+        	playerGamesPlayed.setText("Games Played: " + Integer.toString(cursor.getInt(4)));
+        }
+	}
+	
+	private void resetPlayerScores(String playerName) {
+		Cursor pCursor;
+		int numRows = 0;
+		
+		pCursor = dbAdapter.find(TopsyTurvyDbAdapter.DATABASE_PLAYERS_TABLE, "name = '" + playerName + "'");
+		
+		if (pCursor != null && pCursor.getCount() > 0)
+			numRows = dbAdapter.update(pCursor.getString(0), null, 0, 0, 0, -1, -1);
+		
+		if (numRows > 0)
+			Toast.makeText(getApplicationContext() , "Reset Complete", Toast.LENGTH_LONG).show();
+	}
+	
+	private void deletePlayer(String playerName) {
+		boolean deleted;
+		
+		deleted = dbAdapter.delete(TopsyTurvyDbAdapter.DATABASE_PLAYERS_TABLE, "name = '" + playerName + "'");
+		
+		if (deleted)
+			Toast.makeText(getApplicationContext() , "Player Removed", Toast.LENGTH_LONG).show();
 	}
 }

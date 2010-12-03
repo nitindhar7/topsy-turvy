@@ -28,13 +28,10 @@
 package com.topsyturvy;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.media.AudioManager;
+import android.database.Cursor;
+import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -44,27 +41,20 @@ import android.widget.Toast;
 
 public class TopsyTurvy extends Activity implements OnClickListener {
     
-    // Game settings
-    private int sound;
-    private int vibration;
-    
-    // Managers
-    private AudioManager audioManager;
-    private Vibrator vibrator;
-    
-    // Create database instance
+    // DB
 	private TopsyTurvyDbAdapter dbAdapter;
+	private String activePlayer;
+	private MediaPlayer mediaPlayer;
 	
-	// UI elements
+	// UI
 	private Button mainMenuSinglePlayerButton;
 	private Button mainMenuMultiPlayerButton;
 	private Button mainMenuSettingsButton;
-
-	private AlertDialog.Builder builder;
-	private AlertDialog alert;
 	
 	// Return values
 	private int SINGLEPLAYER_RESULT;
+	private int MULTIPLAYER_RESULT;
+	private int SETTINGS_RESULT;
 	
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,7 +62,11 @@ public class TopsyTurvy extends Activity implements OnClickListener {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.main);
         
-        // Retrieve UI elements
+        //Background Music
+        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.backgroundmusic);
+        mp.start();
+        
+        // UI
         mainMenuSinglePlayerButton 	= (Button)findViewById(R.id.mainMenuSinglePlayer);
         mainMenuMultiPlayerButton 	= (Button)findViewById(R.id.mainMenuMultiPlayer);
         mainMenuSettingsButton 		= (Button)findViewById(R.id.mainMenuSettings);
@@ -81,125 +75,119 @@ public class TopsyTurvy extends Activity implements OnClickListener {
 		mainMenuSinglePlayerButton.setOnClickListener(this);
 		mainMenuMultiPlayerButton.setOnClickListener(this);
 		mainMenuSettingsButton.setOnClickListener(this);
-		
-		// Set sound setting using value from db
-        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        audioManager.setMode(getAudioMode());
 
+		// DB
         dbAdapter = new TopsyTurvyDbAdapter(this);
+        dbAdapter.open();
+        activePlayer = null;
         
-        // Set vibration setting using value from db
-        setVibrator();
-        
-        builder = new AlertDialog.Builder(this);
-	    builder.setMessage("No Profile Selected\nCreate New Profile?")
-	           .setCancelable(false)
-	           .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-	               public void onClick(DialogInterface dialog, int id) {
-						Intent addProfile = new Intent(TopsyTurvy.this, AddProfile.class);
-						startActivity(addProfile);
-	               }
-	           })
-	           .setNegativeButton("No", new DialogInterface.OnClickListener() {
-	               public void onClick(DialogInterface dialog, int id) {
-	            	   dialog.cancel();
-	               }
-	           });
-	    alert = builder.create();
+        // Load profile
+        loadProfile();
     }
     
     @Override
-	protected void onStart()
-	{
+	protected void onStart() {
 		super.onStart();
-        dbAdapter.open();
 	}
     
     @Override
-	protected void onPause()
-	{
+	protected void onResume() {
+		super.onResume();
+		
+		if (dbAdapter.state == 0)
+			dbAdapter.open();
+	}
+    
+    @Override
+	protected void onPause() {
 		super.onPause();
 		dbAdapter.close();
 	}
     
     @Override
+	protected void onStop() {
+		super.onStop();
+		dbAdapter.close();
+		activePlayer = null;
+	}
+    
+    @Override
 	public void onBackPressed() {
     	dbAdapter.close();
+    	activePlayer = null;
+    	
+    	if (mediaPlayer != null) {
+	    	mediaPlayer.release();
+	    	mediaPlayer = null;
+    	}
+    	
 		finish();
 	}
 
     public void onClick(View src) {
-    	int gameCount;
-    	int activePlayerId;
-    	
-    	gameCount = dbAdapter.count("game");
-    	
 		switch(src.getId()) {
 			case R.id.mainMenuSinglePlayer:
-				if (gameCount > 0) {
-					activePlayerId = dbAdapter.find("game").getInt(4);
+				if (activePlayer == null)
+					Toast.makeText(getApplicationContext() , "No Player Selected", Toast.LENGTH_LONG).show();
+				else {
 					Intent singlePlayerGame = new Intent(TopsyTurvy.this, SinglePlayer.class);
-					singlePlayerGame.putExtra("activePlayerID", activePlayerId);
+					singlePlayerGame.putExtra("activePlayer", activePlayer);
 		        	startActivityForResult(singlePlayerGame, SINGLEPLAYER_RESULT);
 				}
-				else
-					alert.show();
 				break;
-				
 			case R.id.mainMenuMultiPlayer:
-				if (gameCount > 0) {
+				if (activePlayer == null)
+					Toast.makeText(getApplicationContext() , "No Player Selected", Toast.LENGTH_LONG).show();
+				else {
 					Intent multiPlayerGame = new Intent(TopsyTurvy.this, Lobby.class);
-		        	startActivity(multiPlayerGame);
+					multiPlayerGame.putExtra("activePlayer", activePlayer);
+					startActivityForResult(multiPlayerGame, MULTIPLAYER_RESULT);
 				}
-				else
-					alert.show();
 				break;
-				
 			case R.id.mainMenuSettings:
 				Intent settings = new Intent(TopsyTurvy.this, Settings.class);
-	        	startActivity(settings);
+				settings.putExtra("activePlayer", activePlayer);
+				startActivityForResult(settings, SETTINGS_RESULT);
 	        	break;
 		}
 	}
     
-    /**
-     * Set the ringer ON or OFF based on db setting
-     * 
-     * @return Integer specifying ringer setting
-     */
-    private int getAudioMode () {
-    	if (sound == 0)
-    		return AudioManager.RINGER_MODE_SILENT;
-    	else
-    		return AudioManager.RINGER_MODE_NORMAL;
-    }
-    
-    /**
-     * Set the vibrator ON or OFF based on db setting
-     */
-    private void setVibrator() {
-    	vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-    	
-    	if (vibration == 0)
-    		vibrator.cancel();
-    }
-    
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-                      
+
+        if (dbAdapter.state == 0)
+			dbAdapter.open();
+        loadProfile();
+        
         switch (resultCode) {
 	        case 10:
 	        	Toast.makeText(getApplicationContext() , "YOU WIN!", Toast.LENGTH_LONG).show();
+	        	Intent win = new Intent(TopsyTurvy.this, Score.class);
+	        	startActivity(win);
 	        	break;
 	        case 11:
 	        	Toast.makeText(getApplicationContext() , "TIME OVER!!!!!", Toast.LENGTH_LONG).show();
+	        	Intent timeOver = new Intent(TopsyTurvy.this, Score.class);
+	        	startActivity(timeOver);
 	        	break;
 	        case 12:
+	        	MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.explosion);
+	        	mediaPlayer.start();
 	        	Toast.makeText(getApplicationContext() , "YOU FELL!!!!!", Toast.LENGTH_LONG).show();
+	        	Intent fell = new Intent(TopsyTurvy.this, Score.class);
+	        	startActivity(fell);
 	        	break;
         }
-        
-        Intent scores = new Intent(TopsyTurvy.this, Scores.class);
-    	startActivity(scores);
+    }
+    
+    private void loadProfile() {
+    	Cursor pCursor, sCursor;
+    	
+    	sCursor = dbAdapter.find(TopsyTurvyDbAdapter.DATABASE_SESSIONS_TABLE, null);
+    	if (sCursor != null && sCursor.getCount() > 0) {
+    		pCursor = dbAdapter.find(TopsyTurvyDbAdapter.DATABASE_PLAYERS_TABLE, "name = '" + sCursor.getString(1) + "'");
+    		if (pCursor != null && pCursor.getCount() > 0)
+    			activePlayer = pCursor.getString(0);
+    	}
     }
 }

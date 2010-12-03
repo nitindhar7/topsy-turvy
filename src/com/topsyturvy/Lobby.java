@@ -142,21 +142,18 @@ public class Lobby extends Activity {
 	@Override
 	public void onStart() {
 		super.onStart();
-		
-		String playerName;
     	int playerCount;
-    	int activePlayerId;
     	
         dbAdapter = new TopsyTurvyDbAdapter(this);
         dbAdapter.open();
-		playerCount = dbAdapter.count("player");
+		playerCount = dbAdapter.count("players");
 		
 		builder = new AlertDialog.Builder(this);
 	    builder.setMessage("No Profile Selected\nCreate New Profile?")
 	           .setCancelable(false)
 	           .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 	               public void onClick(DialogInterface dialog, int id) {
-						Intent addProfile = new Intent(Lobby.this, AddProfile.class);
+						Intent addProfile = new Intent(Lobby.this, NewPlayer.class);
 						startActivity(addProfile);
 	               }
 	           })

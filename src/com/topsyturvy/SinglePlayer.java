@@ -49,8 +49,8 @@ import android.view.WindowManager;
 import android.widget.Chronometer;
 import android.widget.Chronometer.OnChronometerTickListener;
 
-public class SinglePlayer extends Activity
-{
+public class SinglePlayer extends Activity {
+
 	private final int SCOREBOARD_RESULT = 0;
 	
 	private TopsyTurvyGLSurfaceView mGLView;
@@ -62,19 +62,19 @@ public class SinglePlayer extends Activity
 
 	private String currentTime = "00.30";
 	private int count = 1;
+	private int level = 2;
 	private int score = 0;
-	private int activePlayerID;
+	private String activePlayer;
 	
 	// Create database instance
 	public TopsyTurvyDbAdapter dbAdapter;
 	
-	public void onCreate(Bundle savedInstanceState)
-	{
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-		activePlayerID = getIntent().getIntExtra("activePlayerID", -1);
+		activePlayer = getIntent().getStringExtra("activePlayer");
 		dbAdapter = new TopsyTurvyDbAdapter(this);
 		dbAdapter.open();
 		
@@ -83,7 +83,7 @@ public class SinglePlayer extends Activity
 		display = ((WindowManager)getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
 
         // Create GLSurfaceView with sensors
-		mGLView = new TopsyTurvyGLSurfaceView(this, (SensorManager) getSystemService(SENSOR_SERVICE), display, this);
+		mGLView = new TopsyTurvyGLSurfaceView(this, vibrator, (SensorManager) getSystemService(SENSOR_SERVICE), display, this, level);
 
 		// Create gesture detector
 		gestureDetector = new GestureDetector(new MyGestureDetector());
@@ -122,13 +122,13 @@ public class SinglePlayer extends Activity
 					arg0.setText("0:30");
 					chrono.stop();
 					
-					cursor = dbAdapter.find("player", activePlayerID);
-					if (cursor != null) {
-						topScore = (cursor.getInt(2) < score) ? score : cursor.getInt(2);
-						gamesPlayed = cursor.getInt(4) + 1;
-						totalScore = cursor.getInt(3) + score;
-						
-						dbAdapter.update("player", cursor.getInt(0), 0, 0, 0, 0, cursor.getString(1), topScore, gamesPlayed, totalScore);
+					cursor = dbAdapter.find(TopsyTurvyDbAdapter.DATABASE_PLAYERS_TABLE, "name = '" + activePlayer + "'");
+					if (cursor != null && cursor.getCount() > 0) {
+						topScore = (cursor.getInt(1) < score) ? score : cursor.getInt(1);
+						gamesPlayed = cursor.getInt(3) + 1;
+						totalScore = cursor.getInt(2) + score;
+
+						dbAdapter.update(cursor.getString(0), null, topScore, totalScore, gamesPlayed, -1, -1);
 					}
 					
 					setResult(11);
@@ -139,33 +139,30 @@ public class SinglePlayer extends Activity
 	}
 	
 	@Override
-	protected void onPause()
-	{
+	protected void onPause() {
 		super.onPause();
 		dbAdapter.close();
 		mGLView.onPause();
 	}
 
 	@Override
-	protected void onResume()
-	{
+	protected void onResume() {
 		super.onResume();
 		mGLView.onResume();
 	}
 	
 	@Override
 	public void onBackPressed() {
-		dbAdapter.close();
+		dbAdapter.close(); 
 		setResult(13);
 		finish();
 	}
 	
-	class MyGestureDetector extends SimpleOnGestureListener
-	{
+	class MyGestureDetector extends SimpleOnGestureListener {
 	    @Override
 	    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
 	    {
-	    	mGLView.renderer.pTopBody.setAngularVelocity(velocityY/10);
+	    	mGLView.renderer.pTopBody.setAngularVelocity(velocityY/270);
 	    	mGLView.renderer.pTopBody.allowSleeping(false);
 	    	chrono.start();
 
@@ -214,28 +211,23 @@ public class SinglePlayer extends Activity
         }
     }
 	
-	public void doVibrate(int seconds)
-	{
+	public void doVibrate(int seconds) {
 		vibrator.vibrate(seconds);
 	}
 	
-	public void doVibrate(int seconds, long[] pattern)
-	{
+	public void doVibrate(int seconds, long[] pattern) {
 		vibrator.vibrate(pattern, seconds);
 	}
 	
-	public int getScore()
-	{
+	public int getScore() {
 		return this.score + (30-count)*2;
 	}
 	
-	public TopsyTurvyDbAdapter getTopsyTurvyDbAdapter()
-	{
+	public TopsyTurvyDbAdapter getTopsyTurvyDbAdapter() {
 		return dbAdapter;
 	}
 	
-	public int getActivePlayer()
-	{
-		return activePlayerID;
+	public String getActivePlayer() {
+		return activePlayer;
 	}
 }

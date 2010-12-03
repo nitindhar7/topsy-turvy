@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_height="fill_parent"
+	android:layout_width="fill_parent"
+	android:orientation="vertical"
+	android:background="@drawable/full_bg2">
+	<TextView
+		android:layout_width="fill_parent"
+		android:id="@+id/playerInfoLabel"
+		android:background="@drawable/add_player_menu_label"
+		android:layout_height="wrap_content"
+		android:minHeight="60dp"></TextView>
+	<EditText
+		android:layout_height="wrap_content"
+		android:id="@+id/newPlayerName"
+		android:layout_width="fill_parent"
+		android:textColor="#999"
+		android:layout_margin="10dp"
+		android:hint="Enter Name"></EditText>
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:id="@+id/newPlayerSaveButton"
+		android:background="@drawable/save_profile"
+		android:layout_margin="10dp"
+		android:minHeight="70dp"
+		android:minWidth="130dp"></TextView>
+</LinearLayout>

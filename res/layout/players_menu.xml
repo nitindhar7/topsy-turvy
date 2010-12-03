@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+	xmlns:android="http://schemas.android.com/apk/res/android">
+	<item
+		android:id="@+id/newPlayer"
+		android:icon="@drawable/ic_menu_add"
+		android:title="New" />
+	<item
+		android:id="@+id/resetScores"
+		android:icon="@drawable/ic_menu_restart"
+		android:title="Reset Scores" />
+</menu>

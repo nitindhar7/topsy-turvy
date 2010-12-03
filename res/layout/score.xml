@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_height="fill_parent"
+	android:layout_width="fill_parent"
+	android:orientation="vertical"
+	android:background="@drawable/ajax_bg_full">
+	<TextView
+		android:layout_height="wrap_content"
+		android:layout_width="fill_parent"
+		android:height="75px"
+		android:id="@+id/playersLabel"
+		android:background="@drawable/score_menu_label"></TextView>
+	<RelativeLayout
+		android:id="@+id/RelativeLayout02"
+		android:layout_height="wrap_content"
+		android:layout_width="fill_parent">
+		<TextView
+			android:layout_height="wrap_content"
+			android:textColor="#666"
+			android:textStyle="bold"
+			android:layout_width="fill_parent"
+			android:gravity="center_horizontal"
+			android:padding="10dp"
+			android:textSize="60sp" android:id="@+id/playerScore"></TextView>
+	<TextView android:layout_height="wrap_content" android:layout_below="@+id/playerScore" android:id="@+id/pointsLabel" android:text="P O I N T S" android:textColor="#000" android:textStyle="bold" android:textSize="20sp" android:layout_width="fill_parent" android:gravity="center_horizontal"></TextView>
+</RelativeLayout>
+	<TextView
+		android:layout_height="wrap_content"
+		android:layout_width="fill_parent"
+		android:background="@drawable/divider1"
+		android:id="@+id/divider1"></TextView>
+	<LinearLayout
+		android:id="@+id/LinearLayout01"
+		android:layout_width="fill_parent"
+		android:orientation="vertical"
+		android:layout_height="fill_parent"
+		android:background="#36c">
+		<TextView
+			android:layout_height="wrap_content"
+			android:layout_width="fill_parent"
+			android:textColor="#FFF"
+			android:textStyle="bold"
+			android:padding="10dp"
+			android:shadowDx="1.2"
+			android:shadowColor="#333"
+			android:gravity="center_vertical"
+			android:drawableLeft="@drawable/ic_menu_players" android:id="@+id/playerTopScore" android:text="Top Score" android:textSize="20sp"></TextView>
+		<TextView
+			android:layout_height="wrap_content"
+			android:layout_width="fill_parent"
+			android:textStyle="bold"
+			android:padding="10dp"
+			android:textColor="#FFF"
+			android:shadowColor="#333"
+			android:shadowDx="1.2"
+			android:drawableLeft="@drawable/ic_menu_hints" android:id="@+id/playerAverageScore" android:text="Average Score" android:textSize="20sp" android:gravity="center_vertical"></TextView>
+		
+	</LinearLayout>
+</LinearLayout>

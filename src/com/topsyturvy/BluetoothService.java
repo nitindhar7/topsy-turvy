@@ -2,7 +2,6 @@ package com.topsyturvy;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.UUID;
 
 import android.bluetooth.BluetoothAdapter;
@@ -335,22 +334,18 @@ public class BluetoothService {
 	    private class ConnectedThread extends Thread {
 	        private final BluetoothSocket mmSocket;
 	        private final InputStream mmInStream;
-	        private final OutputStream mmOutStream;
 
 	        public ConnectedThread(BluetoothSocket socket) {
 	            mmSocket = socket;
 	            InputStream tmpIn = null;
-	            OutputStream tmpOut = null;
 
 	            // Get the BluetoothSocket input and output streams
 	            try {
 	                tmpIn = socket.getInputStream();
-	                tmpOut = socket.getOutputStream();
 	            } catch (IOException e) {
 	            }
 
 	            mmInStream = tmpIn;
-	            mmOutStream = tmpOut;
 	        }
 
 	        public void run() {
@@ -370,20 +365,6 @@ public class BluetoothService {
 	                    connectionLost();
 	                    break;
 	                }
-	            }
-	        }
-	        
-	        /**
-	         * Write to the connected OutStream.
-	         * @param buffer  The bytes to write
-	         */
-	        public void write(byte[] buffer) {
-	            try {
-	                mmOutStream.write(buffer);
-
-	                // Share the sent message back to the UI Activity
-	                mHandler.obtainMessage(Lobby.MESSAGE_WRITE, -1, -1, buffer).sendToTarget();
-	            } catch (IOException e) {
 	            }
 	        }
 
