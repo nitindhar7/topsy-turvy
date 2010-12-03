@@ -13,6 +13,7 @@ import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -47,6 +48,7 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 	private DrawModel gImpulsiveFence, gblock1;
 	public Vec2 tempVec;
 	public boolean flingReleased;
+	private Intent resultIntent = new Intent();
 	
 	float size =.2f;
 
@@ -108,7 +110,7 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 		                                {3.6375f, -12.687225f, -0.033079084f, 2.6639576f, size},
 		                                };
 		}
-		else if (level == 2)
+		else if (level == 3)
 		{	//level has rotating lines
 			FenceAttr = new float[][]	// { x, y, rot, sizeX, sizeY}
 	                                {
@@ -132,7 +134,7 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 	                5);
 
 		}
-		else if (level == 3)
+		else if (level == 2)
 		{	//(level has simple fences)
 			FenceAttr = new float[][]	// { x, y, rot, sizeX, sizeY}
 	                                {
@@ -176,12 +178,12 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
         pTopBodyDef = new BodyDef();
         pTopShape = new CircleDef();
         pTopBodyDef.position.set(new Vec2(-7,15));
-        pTopBodyDef.massData.mass = 30f;
+        pTopBodyDef.massData.mass = 100f;
         pTopBody = pWorld.createBody(pTopBodyDef);
         pTopShape.radius = 1;
         pTopShape.density = 1.0f;
-        pTopShape.friction = 0.2f;
-        pTopShape.restitution = 0.4f;
+        pTopShape.friction = 1.5f;
+        pTopShape.restitution = 0.3f;
 
         pTopBody.putToSleep();
         pTopBody.createShape(pTopShape);
@@ -191,7 +193,7 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
         int i=0,index=0;
         for(i=0; i<FenceAttr.length;i++)
         {
-        	if (level == 2)
+        	if (level == 3)
         	{
         		if(i==5)
 					pWorld.addFence(FenceAttr[i][index], FenceAttr[i][index + 1],
@@ -223,8 +225,7 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
         
 		mSensorEventListener = new SensorEventListener() {
 			@Override
-			public void onSensorChanged(SensorEvent event)
-			{
+			public void onSensorChanged(SensorEvent event) {
 				float xAxis = event.values[SensorManager.DATA_X];
 				float yAxis = event.values[SensorManager.DATA_Y];
 
@@ -262,7 +263,7 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 		gTable.loadTexture(gl, mContext, R.drawable.newtable);
 		gTop.loadTexture(gl, mContext, R.drawable.top);
 		
-		if(game_level == 2) {
+		if(game_level == 3) {
 			gFence.loadTexture(gl, mContext, R.drawable.lightgreen_obstacle);
 			gDestination.loadTexture(gl, mContext, R.drawable.final_point);
 			gRotator.loadTexture(gl, mContext, R.drawable.darkgreen_obstacle);
@@ -319,7 +320,7 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 		int gamesPlayed;
 		int totalScore;
 
-		if(level == 2)
+		if(level == 3)
 		{
 			tempBody = pWorld.getBodyList();
 			while (tempBody != null) {
@@ -334,22 +335,11 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 								|| tempBody.getPosition().x > tempVec.x * 4 / 7
 								|| tempBody.getPosition().y < -tempVec.y / 2
 								|| tempBody.getPosition().y > tempVec.y / 2) {
-								this.currentSPGame.doVibrate(50);
-								this.currentSPGame.setResult(12);
-								this.currentSPGame.finish();
-							}
-						else
-							gTop.draw(gl, tempBody.getPosition().x,
-									tempBody.getPosition().y, 0, rot, 1);
-						if(tempBody.getPosition().x < gDestination.getPosition().x + 1 &&
-							tempBody.getPosition().x > gDestination.getPosition().x - 1 &&
-							tempBody.getPosition().y < gDestination.getPosition().y + 1 &&
-							tempBody.getPosition().y > gDestination.getPosition().y - 1){
-							
+
 							score = this.currentSPGame.getScore();
 							dbAdapter = this.currentSPGame.getTopsyTurvyDbAdapter();
 							cursor = dbAdapter.find(TopsyTurvyDbAdapter.DATABASE_PLAYERS_TABLE, "name = '" + this.currentSPGame.getActivePlayer() + "'");
-							if (cursor != null) {
+							if (cursor != null && cursor.getCount() > 0) {
 								topScore = (cursor.getInt(1) < score) ? score : cursor.getInt(1);
 								gamesPlayed = cursor.getInt(3) + 1;
 								totalScore = cursor.getInt(2) + score;
@@ -357,13 +347,39 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 								dbAdapter.update(cursor.getString(0), null, topScore, totalScore, gamesPlayed, -1, -1);
 							}
 							
+							resultIntent.putExtra("score", score);
 							this.currentSPGame.doVibrate(50);
-							this.currentSPGame.setResult(10);
+							this.currentSPGame.setResult(12, resultIntent);
 							this.currentSPGame.finish();
-							}	
+						}
+						else
+							gTop.draw(gl, tempBody.getPosition().x, tempBody.getPosition().y, 0, rot, 1);
+	
+						if(tempBody.getPosition().x < gDestination.getPosition().x + 1 &&
+							tempBody.getPosition().x > gDestination.getPosition().x - 1 &&
+							tempBody.getPosition().y < gDestination.getPosition().y + 1 &&
+							tempBody.getPosition().y > gDestination.getPosition().y - 1){
+
+							score = this.currentSPGame.getScore() + 100;
+							dbAdapter = this.currentSPGame.getTopsyTurvyDbAdapter();
+							cursor = dbAdapter.find(TopsyTurvyDbAdapter.DATABASE_PLAYERS_TABLE, "name = '" + this.currentSPGame.getActivePlayer() + "'");
+							if (cursor != null && cursor.getCount() > 0) {
+								topScore = (cursor.getInt(1) < score) ? score : cursor.getInt(1);
+								
+								gamesPlayed = cursor.getInt(3) + 1;
+								totalScore = cursor.getInt(2) + score;
+
+								dbAdapter.update(cursor.getString(0), null, topScore, totalScore, gamesPlayed, -1, -1);
+							}
 							
-							break;
-						case POLYGON_SHAPE:
+							resultIntent.putExtra("score", score);
+							this.currentSPGame.doVibrate(50);
+							this.currentSPGame.setResult(10, resultIntent);
+							this.currentSPGame.finish();
+						}	
+							
+						break;
+					case POLYGON_SHAPE:
 						Vec2[] vertexes = ((PolygonShape)tempShape).getVertices();
 
 						if(tempBody.getUserData().toString().contains("rotator"))	                    
@@ -400,21 +416,33 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 								|| tempBody.getPosition().y < -tempVec.y / 2
 								|| tempBody.getPosition().y > tempVec.y / 2) {
 
-							this.currentSPGame.doVibrate(50);
-							this.currentSPGame.setResult(12);
-							this.currentSPGame.finish();
+							score = this.currentSPGame.getScore();
+							dbAdapter = this.currentSPGame.getTopsyTurvyDbAdapter();
+							cursor = dbAdapter.find(TopsyTurvyDbAdapter.DATABASE_PLAYERS_TABLE, "name = '" + this.currentSPGame.getActivePlayer() + "'");
+							if (cursor != null && cursor.getCount() > 0) {
+								topScore = (cursor.getInt(1) < score) ? score : cursor.getInt(1);
+								gamesPlayed = cursor.getInt(3) + 1;
+								totalScore = cursor.getInt(2) + score;
+
+								dbAdapter.update(cursor.getString(0), null, topScore, totalScore, gamesPlayed, -1, -1);
 							}
+
+							resultIntent.putExtra("score", score);
+							this.currentSPGame.doVibrate(50);
+							this.currentSPGame.setResult(12, resultIntent);
+							this.currentSPGame.finish();
+						}
 						else
 							gTop.draw(gl, tempBody.getPosition().x, tempBody.getPosition().y, 0, rot, 1);							
 							if(tempBody.getPosition().x < gDestination.getPosition().x + 1 &&
 								tempBody.getPosition().x > gDestination.getPosition().x - 1 &&
 								tempBody.getPosition().y < gDestination.getPosition().y + 1 &&
 								tempBody.getPosition().y > gDestination.getPosition().y - 1){
-
-								score = this.currentSPGame.getScore();
+								
+								score = this.currentSPGame.getScore() + 100;
 								dbAdapter = this.currentSPGame.getTopsyTurvyDbAdapter();
 								cursor = dbAdapter.find(TopsyTurvyDbAdapter.DATABASE_PLAYERS_TABLE, "name = '" + this.currentSPGame.getActivePlayer() + "'");
-								if (cursor != null) {
+								if (cursor != null && cursor.getCount() > 0) {
 									topScore = (cursor.getInt(1) < score) ? score : cursor.getInt(1);
 									gamesPlayed = cursor.getInt(3) + 1;
 									totalScore = cursor.getInt(2) + score;
@@ -422,8 +450,9 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 									dbAdapter.update(cursor.getString(0), null, topScore, totalScore, gamesPlayed, -1, -1);
 								}
 								
+								resultIntent.putExtra("score", score);
 								this.currentSPGame.doVibrate(50);
-								this.currentSPGame.setResult(10);
+								this.currentSPGame.setResult(10, resultIntent);
 								this.currentSPGame.finish();
 							}								
 							break;
@@ -443,59 +472,71 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 		}
 		else
 		{
-				tempBody = pWorld.getBodyList();
-				while (tempBody != null) {
-					tempShape = tempBody.getShapeList();
-					
-					if (tempShape != null) {				
-						vec = tempBody.getPosition();
-		                rot = tempBody.getAngle() * 57f;
-		                
-						switch (tempShape.getType()) {
-							case CIRCLE_SHAPE:
-							if (tempBody.getPosition().x < -tempVec.x * 4 / 7
-									|| tempBody.getPosition().x > tempVec.x * 4 / 7
-									|| tempBody.getPosition().y < -tempVec.y / 2
-									|| tempBody.getPosition().y > tempVec.y / 2) {
+			tempBody = pWorld.getBodyList();
+			while (tempBody != null) {
+				tempShape = tempBody.getShapeList();
+				
+				if (tempShape != null) {				
+					vec = tempBody.getPosition();
+	                rot = tempBody.getAngle() * 57f;
+	                
+					switch (tempShape.getType()) {
+						case CIRCLE_SHAPE:
+						if (tempBody.getPosition().x < -tempVec.x * 4 / 7
+								|| tempBody.getPosition().x > tempVec.x * 4 / 7
+								|| tempBody.getPosition().y < -tempVec.y / 2
+								|| tempBody.getPosition().y > tempVec.y / 2) {
 
-								this.currentSPGame.doVibrate(50);
-								this.currentSPGame.setResult(12);
-								this.currentSPGame.finish();
-								}
-							else
-								gTop.draw(gl, tempBody.getPosition().x, tempBody.getPosition().y, 0, rot, 1);							
-								if(tempBody.getPosition().x < gDestination.getPosition().x + 1 &&
-									tempBody.getPosition().x > gDestination.getPosition().x - 1 &&
-									tempBody.getPosition().y < gDestination.getPosition().y + 1 &&
-									tempBody.getPosition().y > gDestination.getPosition().y - 1){
+							score = this.currentSPGame.getScore();
+							dbAdapter = this.currentSPGame.getTopsyTurvyDbAdapter();
+							cursor = dbAdapter.find(TopsyTurvyDbAdapter.DATABASE_PLAYERS_TABLE, "name = '" + this.currentSPGame.getActivePlayer() + "'");
+							if (cursor != null && cursor.getCount() > 0) {
+								topScore = (cursor.getInt(1) < score) ? score : cursor.getInt(1);
+								gamesPlayed = cursor.getInt(3) + 1;
+								totalScore = cursor.getInt(2) + score;
 
-									score = this.currentSPGame.getScore();
-									dbAdapter = this.currentSPGame.getTopsyTurvyDbAdapter();
-									cursor = dbAdapter.find(TopsyTurvyDbAdapter.DATABASE_PLAYERS_TABLE, "name = '" + this.currentSPGame.getActivePlayer() + "'");
-									if (cursor != null) {
-										topScore = (cursor.getInt(1) < score) ? score : cursor.getInt(1);
-										gamesPlayed = cursor.getInt(3) + 1;
-										totalScore = cursor.getInt(2) + score;
-
-										dbAdapter.update(cursor.getString(0), null, topScore, totalScore, gamesPlayed, -1, -1);
-									}
-									
-									this.currentSPGame.doVibrate(50);
-									this.currentSPGame.setResult(10);
-									this.currentSPGame.finish();
-								}								
-								break;
-								
-							case POLYGON_SHAPE:
-								Vec2[] vertexes = ((PolygonShape)tempShape).getVertices();		                                                	
-		                        	gFence.draw(gl, vec.x, vec.y, 0f, rot, vertexes[2].x, size);                        					                        
-								break;
+								dbAdapter.update(cursor.getString(0), null, topScore, totalScore, gamesPlayed, -1, -1);
+							}
+							
+							resultIntent.putExtra("score", score);
+							this.currentSPGame.doVibrate(50);
+							this.currentSPGame.setResult(12, resultIntent);
+							this.currentSPGame.finish();
 						}
+						else
+							gTop.draw(gl, tempBody.getPosition().x, tempBody.getPosition().y, 0, rot, 1);							
+							if(tempBody.getPosition().x < gDestination.getPosition().x + 1 &&
+								tempBody.getPosition().x > gDestination.getPosition().x - 1 &&
+								tempBody.getPosition().y < gDestination.getPosition().y + 1 &&
+								tempBody.getPosition().y > gDestination.getPosition().y - 1){
+								
+								score = this.currentSPGame.getScore() + 100;
+								dbAdapter = this.currentSPGame.getTopsyTurvyDbAdapter();
+								cursor = dbAdapter.find(TopsyTurvyDbAdapter.DATABASE_PLAYERS_TABLE, "name = '" + this.currentSPGame.getActivePlayer() + "'");
+								if (cursor != null && cursor.getCount() > 0) {
+									topScore = (cursor.getInt(1) < score) ? score : cursor.getInt(1);
+									gamesPlayed = cursor.getInt(3) + 1;
+									totalScore = cursor.getInt(2) + score;
+									dbAdapter.update(cursor.getString(0), null, topScore, totalScore, gamesPlayed, -1, -1);
+								}
+								
+								resultIntent.putExtra("score", score);
+								this.currentSPGame.doVibrate(50);
+								this.currentSPGame.setResult(10, resultIntent);
+								this.currentSPGame.finish();
+							}								
+							break;
+							
+						case POLYGON_SHAPE:
+							Vec2[] vertexes = ((PolygonShape)tempShape).getVertices();		                                                	
+	                        	gFence.draw(gl, vec.x, vec.y, 0f, rot, vertexes[2].x, size);                        					                        
+							break;
 					}
-					tempBody = tempBody.getNext();
-					tempShape = null;
 				}
+				tempBody = tempBody.getNext();
+				tempShape = null;
 			}
+		}
 	}
 
 	public Vec2 getSize() {

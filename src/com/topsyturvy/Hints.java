@@ -14,4 +14,9 @@ public class Hints extends Activity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.hints);
 	}
+	
+	@Override
+	public void onBackPressed() {
+		finish();
+	}
 }

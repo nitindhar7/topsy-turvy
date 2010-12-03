@@ -30,7 +30,9 @@ package com.topsyturvy;
 import org.jbox2d.common.Vec2;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.hardware.SensorManager;
@@ -48,6 +50,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Chronometer;
 import android.widget.Chronometer.OnChronometerTickListener;
+import android.widget.Toast;
 
 public class SinglePlayer extends Activity {
 
@@ -62,20 +65,23 @@ public class SinglePlayer extends Activity {
 
 	private String currentTime = "00.30";
 	private int count = 1;
-	private int level = 2;
+	private int level;
 	private int score = 0;
 	private String activePlayer;
 	
 	// Create database instance
 	public TopsyTurvyDbAdapter dbAdapter;
+	public AlertDialog.Builder builder;
+	public AlertDialog alert;
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-		activePlayer = getIntent().getStringExtra("activePlayer");
-		dbAdapter = new TopsyTurvyDbAdapter(this);
+		activePlayer	= getIntent().getStringExtra("activePlayer");
+		level			= getIntent().getIntExtra("level", 1);
+		dbAdapter		= new TopsyTurvyDbAdapter(this);
 		dbAdapter.open();
 		
 		// Get services
@@ -114,34 +120,62 @@ public class SinglePlayer extends Activity {
 					score += 1;
 				}
 				else {
-					Cursor cursor;
-					int topScore;
-					int gamesPlayed;
-					int totalScore;
-
 					arg0.setText("0:30");
 					chrono.stop();
-					
-					cursor = dbAdapter.find(TopsyTurvyDbAdapter.DATABASE_PLAYERS_TABLE, "name = '" + activePlayer + "'");
-					if (cursor != null && cursor.getCount() > 0) {
-						topScore = (cursor.getInt(1) < score) ? score : cursor.getInt(1);
-						gamesPlayed = cursor.getInt(3) + 1;
-						totalScore = cursor.getInt(2) + score;
-
-						dbAdapter.update(cursor.getString(0), null, topScore, totalScore, gamesPlayed, -1, -1);
-					}
-					
-					setResult(11);
-					finish();
+					mGLView.renderer.pTopBody.putToSleep();
+					Toast.makeText(getApplicationContext() , "TIME OVER!!!!!", Toast.LENGTH_LONG).show();
+					alert.show();
 				}
         	}
         });
 	}
 	
 	@Override
+	protected void onStart() {
+		super.onStart();
+
+		builder = new AlertDialog.Builder(this);
+	    builder.setMessage("Restart?")
+	           .setCancelable(false)
+	           .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+	               public void onClick(DialogInterface dialog, int id) {
+						count = 1;
+						score = 0;
+						currentTime = "00.30";
+						chrono.setText(currentTime);
+						chrono.stop();
+						mGLView.renderer.pTopBody.setXForm(new Vec2(-7,15), 0);
+						mGLView.renderer.pTopBody.putToSleep();
+						dialog.cancel();
+	               }
+	           })
+	           .setNegativeButton("No", new DialogInterface.OnClickListener() {
+	               public void onClick(DialogInterface dialog, int id) {
+	            	   	Cursor cursor;
+		           		int topScore;
+		           		int gamesPlayed;
+		           		int totalScore;
+	            	   
+		           		cursor = dbAdapter.find(TopsyTurvyDbAdapter.DATABASE_PLAYERS_TABLE, "name = '" + activePlayer + "'");
+						if (cursor != null && cursor.getCount() > 0) {
+							topScore = (cursor.getInt(1) < score) ? score : cursor.getInt(1);
+							gamesPlayed = cursor.getInt(3) + 1;
+							totalScore = cursor.getInt(2) + score;
+
+							dbAdapter.update(cursor.getString(0), null, topScore, totalScore, gamesPlayed, -1, -1);
+						}
+						
+						setResult(11);
+						finish();
+	               }
+	           });
+	    alert = builder.create();
+	}
+	
+	@Override
 	protected void onPause() {
 		super.onPause();
-		dbAdapter.close();
+		//dbAdapter.close();
 		mGLView.onPause();
 	}
 
@@ -192,10 +226,13 @@ public class SinglePlayer extends Activity {
 	        	finish();
 	        	break;
 	        case R.id.restart:
-	        	mGLView.renderer.pWorld.setGravity(0, 0);
-	        	mGLView.renderer.pTopBody.putToSleep();
-	        	mGLView.renderer.pTopBodyDef.position.set(display.getWidth()/2, display.getHeight()*6/8);
-	        	mGLView.renderer.pTopBody.setAngularVelocity(0);
+	        	count = 1;
+				score = 0;
+				currentTime = "00.30";
+				chrono.setText(currentTime);
+				chrono.stop();
+				mGLView.renderer.pTopBody.setXForm(new Vec2(-7,15), 0);
+				mGLView.renderer.pTopBody.putToSleep();
 	        	break;
 	    }
 	    return true;

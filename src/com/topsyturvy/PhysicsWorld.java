@@ -12,9 +12,7 @@ import org.jbox2d.dynamics.joints.RevoluteJointDef;
 import android.content.Context;
 import android.os.Vibrator;
 
-
-public class PhysicsWorld
-{
+public class PhysicsWorld {
     final private float FRAMERATE	= 30;
     final private float timeStep	= (1 / FRAMERATE);
     final private int iterations	= 5;
@@ -27,8 +25,7 @@ public class PhysicsWorld
     RevoluteJointDef jointdef = new RevoluteJointDef();
     RevoluteJoint joint;
     
-    public PhysicsWorld(Context context, Vibrator vibrator, int Level)
-    {
+    public PhysicsWorld(Context context, Vibrator vibrator, int Level) {
     	worldAABB = new AABB();
         worldAABB.lowerBound.set(new Vec2(-10f, -20f));
         worldAABB.upperBound.set(new Vec2(10f, 20f));
@@ -40,9 +37,7 @@ public class PhysicsWorld
         level = Level;
     }
     
-    public void addFence(float x, float y, float xr, float yr, float angle,
-    		boolean dynamic, boolean flag, int count)    
-    {
+    public void addFence(float x, float y, float xr, float yr, float angle, boolean dynamic, boolean flag, int count) {
     		
     	BodyDef groundBodyDef;
 		groundBodyDef = new BodyDef();
@@ -100,7 +95,7 @@ public class PhysicsWorld
 		        joint= (RevoluteJoint) world.createJoint(jointdef);
 			}
 		}
-		else if (level == 2) {
+		else if (level == 3) {
 			if(count == 5 || count ==7)
 			    groundShapeDef.restitution = 3.5f;
 			else
@@ -115,57 +110,48 @@ public class PhysicsWorld
 				groundBody.setUserData("impulsivefence");	
 			else	
 				groundBody.setUserData("fence");
-		
-			if(level == 2) {
-				// JOINT CREATION		
-				if( count == 4 )
-					jointdef.body1 =  groundBody;
-				else if( count == 5 ) {
-					jointdef.body2 =  groundBody;
-				    jointdef.maxMotorTorque = 20.0f;
-				    jointdef.motorSpeed = 15.0f;		
-				    jointdef.enableMotor = true;
-				    joint= (RevoluteJoint) world.createJoint(jointdef);
-				    groundBody.setUserData("rotator"+count);
-				}
+
+			// JOINT CREATION		
+			if( count == 4 )
+				jointdef.body1 =  groundBody;
+			else if( count == 5 ) {
+				jointdef.body2 =  groundBody;
+			    jointdef.maxMotorTorque = 20.0f;
+			    jointdef.motorSpeed = 15.0f;		
+			    jointdef.enableMotor = true;
+			    joint= (RevoluteJoint) world.createJoint(jointdef);
+			    groundBody.setUserData("rotator"+count);
 			}		
 		}
 		else
 			groundBody.createShape(groundShapeDef);
     }
 
-    public void setGravity(float componentX, float componentY)
-    {
+    public void setGravity(float componentX, float componentY) {
     	world.setGravity(new Vec2(componentX, componentY));
     }
     
-    public int getContactCount()
-    {
+    public int getContactCount() {
     	return world.getContactCount();
     }
     
-    public Vec2 getWorldLowerBound()
-    {
+    public Vec2 getWorldLowerBound() {
     	return world.getWorldAABB().lowerBound;
     }
     
-    public Vec2 getWorldUpperBound()
-    {
+    public Vec2 getWorldUpperBound() {
     	return world.getWorldAABB().upperBound;
     }
 
-    public void update()
-    {
+    public void update() {
         world.step(timeStep, iterations);
     }
 
-    public Body getBodyList()
-    {
+    public Body getBodyList() {
         return world.getBodyList();
     }
 
-	public Body createBody(BodyDef bodyDef)
-	{
+	public Body createBody(BodyDef bodyDef) {
 		return world.createBody(bodyDef);
 	}
 }

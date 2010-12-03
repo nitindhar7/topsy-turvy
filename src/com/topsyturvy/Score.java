@@ -44,6 +44,7 @@ public class Score extends Activity {
 	private TextView playerTopScore;
 	private TextView playerAverageScore;
 	private int score;
+	private String activePlayer;
 	
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,6 +62,7 @@ public class Score extends Activity {
         playerAverageScore = (TextView)findViewById(R.id.playerAverageScore);
         
         score = getIntent().getIntExtra("score", -1);
+        activePlayer = getIntent().getStringExtra("activePlayer");
 	}
 	
 	@Override
@@ -95,21 +97,17 @@ public class Score extends Activity {
 	 * and populate listview with textviews
 	 */
 	private void populateFields() {
-		Cursor sCursor, pCursor;
+		Cursor pCursor;
 		int avg;
 
-		sCursor = dbAdapter.find(TopsyTurvyDbAdapter.DATABASE_SESSIONS_TABLE, null);
+		
+        pCursor = dbAdapter.find(TopsyTurvyDbAdapter.DATABASE_PLAYERS_TABLE, "name = '" + activePlayer + "'");
+    	if (pCursor != null && pCursor.getCount() > 0) {
+    		avg = (pCursor.getInt(2)/pCursor.getInt(3));
 
-        if (sCursor != null && sCursor.getCount() > 0) {
-        	pCursor = dbAdapter.find(TopsyTurvyDbAdapter.DATABASE_PLAYERS_TABLE, "name = '" + sCursor.getInt(0) + "'");
-
-        	if (pCursor != null && pCursor.getCount() > 0) {
-        		avg = (pCursor.getInt(2)/pCursor.getInt(3));
-
-	        	playerScore.setText(Integer.toString(score));
-	        	playerTopScore.setText("Top Score: " + Integer.toString(pCursor.getInt(1)));
-	        	playerAverageScore.setText("Average Score: " + Integer.toString(avg));
-        	}
-        }
+        	playerScore.setText(Integer.toString(score));
+        	playerTopScore.setText("Top Score: " + Integer.toString(pCursor.getInt(1)));
+        	playerAverageScore.setText("Average Score: " + Integer.toString(avg));
+    	}
     }
 }

@@ -32,6 +32,10 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -81,18 +85,14 @@ public class TopsyTurvy extends Activity implements OnClickListener {
         dbAdapter.open();
         activePlayer = null;
         
-        // Load profile
-        loadProfile();
+        registerForContextMenu(mainMenuSinglePlayerButton);
     }
-    
-    @Override
-	protected void onStart() {
-		super.onStart();
-	}
     
     @Override
 	protected void onResume() {
 		super.onResume();
+		
+		loadProfile();
 		
 		if (dbAdapter.state == 0)
 			dbAdapter.open();
@@ -101,13 +101,11 @@ public class TopsyTurvy extends Activity implements OnClickListener {
     @Override
 	protected void onPause() {
 		super.onPause();
-		dbAdapter.close();
 	}
     
     @Override
 	protected void onStop() {
 		super.onStop();
-		dbAdapter.close();
 		activePlayer = null;
 	}
     
@@ -130,9 +128,7 @@ public class TopsyTurvy extends Activity implements OnClickListener {
 				if (activePlayer == null)
 					Toast.makeText(getApplicationContext() , "No Player Selected", Toast.LENGTH_LONG).show();
 				else {
-					Intent singlePlayerGame = new Intent(TopsyTurvy.this, SinglePlayer.class);
-					singlePlayerGame.putExtra("activePlayer", activePlayer);
-		        	startActivityForResult(singlePlayerGame, SINGLEPLAYER_RESULT);
+					openContextMenu(mainMenuSinglePlayerButton);
 				}
 				break;
 			case R.id.mainMenuMultiPlayer:
@@ -152,22 +148,75 @@ public class TopsyTurvy extends Activity implements OnClickListener {
 		}
 	}
     
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        
+        menu.setHeaderIcon(R.drawable.ic_menu_share);
+        menu.setHeaderTitle("Select Level");
+        menu.add(0, Menu.FIRST, 0, "Level 1");
+        menu.add(0, Menu.FIRST + 1, 0, "Level 2");
+        menu.add(0, Menu.FIRST + 2, 0, "Level 3");
+        menu.add(0, Menu.FIRST + 3, 0, "Level 4");
+    }
+    
+    public boolean onContextItemSelected(MenuItem item) {
+    	Intent singlePlayerGame;
+    	
+        switch(item.getItemId()) {
+            case Menu.FIRST:
+            	singlePlayerGame = new Intent(TopsyTurvy.this, SinglePlayer.class);
+            	singlePlayerGame.putExtra("activePlayer", activePlayer);
+            	singlePlayerGame.putExtra("level", 1);
+            	startActivityForResult(singlePlayerGame, SINGLEPLAYER_RESULT);
+            	return true;
+            case Menu.FIRST + 1:
+            	singlePlayerGame = new Intent(TopsyTurvy.this, SinglePlayer.class);
+            	singlePlayerGame.putExtra("activePlayer", activePlayer);
+            	singlePlayerGame.putExtra("level", 2);
+            	startActivityForResult(singlePlayerGame, SINGLEPLAYER_RESULT);
+            	return true;
+            case Menu.FIRST + 2:
+            	singlePlayerGame = new Intent(TopsyTurvy.this, SinglePlayer.class);
+            	singlePlayerGame.putExtra("activePlayer", activePlayer);
+            	singlePlayerGame.putExtra("level", 3);
+            	startActivityForResult(singlePlayerGame, SINGLEPLAYER_RESULT);
+            	return true;
+            case Menu.FIRST + 3:
+            	singlePlayerGame = new Intent(TopsyTurvy.this, SinglePlayer.class);
+            	singlePlayerGame.putExtra("activePlayer", activePlayer);
+            	singlePlayerGame.putExtra("level", 4);
+            	startActivityForResult(singlePlayerGame, SINGLEPLAYER_RESULT);
+            	return true;
+        }
+        
+        
+        return super.onContextItemSelected(item);
+    }
+    
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
+        
+        int score = -1;
 
         if (dbAdapter.state == 0)
 			dbAdapter.open();
         loadProfile();
         
+        if (intent != null && intent.hasExtra("score"))
+        	score = intent.getIntExtra("score", -1);
+        
         switch (resultCode) {
 	        case 10:
 	        	Toast.makeText(getApplicationContext() , "YOU WIN!", Toast.LENGTH_LONG).show();
 	        	Intent win = new Intent(TopsyTurvy.this, Score.class);
+	        	win.putExtra("score", score);
+	        	win.putExtra("activePlayer", activePlayer);
 	        	startActivity(win);
 	        	break;
 	        case 11:
-	        	Toast.makeText(getApplicationContext() , "TIME OVER!!!!!", Toast.LENGTH_LONG).show();
 	        	Intent timeOver = new Intent(TopsyTurvy.this, Score.class);
+	        	timeOver.putExtra("score", score);
+	        	timeOver.putExtra("activePlayer", activePlayer);
 	        	startActivity(timeOver);
 	        	break;
 	        case 12:
@@ -175,6 +224,8 @@ public class TopsyTurvy extends Activity implements OnClickListener {
 	        	mediaPlayer.start();
 	        	Toast.makeText(getApplicationContext() , "YOU FELL!!!!!", Toast.LENGTH_LONG).show();
 	        	Intent fell = new Intent(TopsyTurvy.this, Score.class);
+	        	fell.putExtra("score", score);
+	        	fell.putExtra("activePlayer", activePlayer);
 	        	startActivity(fell);
 	        	break;
         }

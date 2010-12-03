@@ -244,8 +244,6 @@ public class Players extends Activity {
         }
         else
         	Toast.makeText(getApplicationContext() , "No Players", Toast.LENGTH_LONG).show();
-        	
-        
     }
 	
 	private void switchPlayer(String playerName) {
