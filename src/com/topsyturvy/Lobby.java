@@ -38,6 +38,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -91,6 +92,7 @@ public class Lobby extends Activity {
 	// Create database instance
 	private TopsyTurvyDbAdapter dbAdapter;
 	private AlertDialog.Builder builder;
+	private String activePlayer;
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -98,6 +100,7 @@ public class Lobby extends Activity {
 	    getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 	    setContentView(R.layout.lobby);
 	    
+	    activePlayer	= getIntent().getStringExtra("activePlayer");
 	    bBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 	    
 	    // If the adapter is null, then Bluetooth is not supported
@@ -111,9 +114,6 @@ public class Lobby extends Activity {
 	    bAvailableDevicesListView.setAdapter(bAvailableDevicesArrayAdapter);
 	    bAvailableDevicesListView.setOnItemClickListener(new OnItemClickListener () {
 	    	public void onItemClick(AdapterView<?> av, View v, int arg2, long arg3) {
-	            
-	    		Log.i(TAG, "onItemClick");
-
 	        	bBluetoothAdapter.cancelDiscovery();
 
 	            // Get the device MAC address, which is the last 17 chars in the View
@@ -124,6 +124,11 @@ public class Lobby extends Activity {
 	            
 	            // Attempt to connect to the device
 	            mService.connect(device);
+	            if (mService.getState() == BluetoothService.STATE_CONNECTED) {
+	            	Intent multiPlayerGame = new Intent(Lobby.this, Lobby.class);
+	            	multiPlayerGame.putExtra("activePlayer", activePlayer);
+					startActivityForResult(multiPlayerGame, 0);
+	            }
 	        }
 	    });
 	    
@@ -142,11 +147,12 @@ public class Lobby extends Activity {
 	@Override
 	public void onStart() {
 		super.onStart();
-    	int playerCount;
+    	Cursor cursor;
     	
         dbAdapter = new TopsyTurvyDbAdapter(this);
         dbAdapter.open();
-		playerCount = dbAdapter.count("players");
+        
+        cursor = dbAdapter.find(TopsyTurvyDbAdapter.DATABASE_SESSIONS_TABLE, null);
 		
 		builder = new AlertDialog.Builder(this);
 	    builder.setMessage("No Profile Selected\nCreate New Profile?")
@@ -165,7 +171,7 @@ public class Lobby extends Activity {
 	           });
 	    AlertDialog alert = builder.create();
 		
-		if (playerCount < 1)
+		if (cursor == null || cursor.getCount() == 0)
 			alert.show();
 		else {
 			if (!bBluetoothAdapter.isEnabled()) {
@@ -199,21 +205,6 @@ public class Lobby extends Activity {
 		Log.i(TAG, "setupService");
 
 		mService = new BluetoothService(this, mHandler);
-	}
-	
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		
-		Log.i(TAG, "onDestroy");
-		
-		if (mService != null)
-			mService.stop();
-		
-		this.unregisterReceiver(mReceiver);
-
-		if (bBluetoothAdapter != null)
-			bBluetoothAdapter.cancelDiscovery();
 	}
 	
 	@Override

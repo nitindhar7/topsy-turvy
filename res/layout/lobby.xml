@@ -3,30 +3,21 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
-	android:background="#0099FF">
-	<RelativeLayout
-		android:id="@+id/RelativeLayout01"
+	android:background="@drawable/full_bg3" android:orientation="vertical">
+	<TextView
 		android:layout_height="wrap_content"
-		android:background="@drawable/settings_wrapper"
 		android:layout_width="fill_parent"
-		android:paddingBottom="10dp">
-		<TextView
-			android:layout_height="wrap_content"
-			android:layout_width="fill_parent"
-			android:id="@+id/lobbyLabel"
-			android:background="@drawable/lobby"
-			android:height="75px"
-			android:layout_marginLeft="10dp"
-			android:layout_marginRight="10dp"
-			android:layout_marginTop="10dp"></TextView>
-		<ListView
-			android:layout_height="fill_parent"
-			android:layout_below="@+id/lobbyLabel"
-			android:layout_centerHorizontal="true"
-			android:id="@+id/lobbyList"
-			android:layout_margin="10dp"
-			android:layout_width="fill_parent"
-			android:dividerHeight="0dp">
-		</ListView>
-	</RelativeLayout>
+		android:id="@+id/lobbyLabel"
+		android:background="@drawable/lobby_menu_label"
+		android:layout_marginBottom="20dp"
+		android:minHeight="60dp"></TextView>
+	<ListView
+		android:layout_height="fill_parent"
+		android:layout_below="@+id/lobbyLabel"
+		android:layout_centerHorizontal="true"
+		android:id="@+id/lobbyList"
+		android:layout_margin="10dp"
+		android:layout_width="fill_parent"
+		android:dividerHeight="0dp">
+	</ListView>
 </LinearLayout>

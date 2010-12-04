@@ -138,9 +138,9 @@ public class TopsyTurvy extends Activity implements OnClickListener {
 				if (activePlayer == null)
 					Toast.makeText(getApplicationContext() , "No Player Selected", Toast.LENGTH_LONG).show();
 				else {
-					Intent multiPlayerGame = new Intent(TopsyTurvy.this, Lobby.class);
-					multiPlayerGame.putExtra("activePlayer", activePlayer);
-					startActivityForResult(multiPlayerGame, MULTIPLAYER_RESULT);
+					Intent lobby = new Intent(TopsyTurvy.this, Lobby.class);
+					lobby.putExtra("activePlayer", activePlayer);
+					startActivityForResult(lobby, MULTIPLAYER_RESULT);
 				}
 				break;
 			case R.id.mainMenuSettings:

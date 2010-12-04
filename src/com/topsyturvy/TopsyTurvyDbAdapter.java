@@ -265,7 +265,7 @@ public class TopsyTurvyDbAdapter {
     	if (table.equals(DATABASE_SESSIONS_TABLE))
     		cursor = db.query(DATABASE_SESSIONS_TABLE, new String[] {KEY_ID}, null, null, null, null, null);
     	else if (table.equals("player"))
-    		cursor = db.query(DATABASE_PLAYERS_TABLE, new String[] {KEY_ID}, null, null, null, null, null);
+    		cursor = db.query(DATABASE_PLAYERS_TABLE, new String[] {KEY_NAME}, null, null, null, null, null);
     	else
     		return -1;
     	
