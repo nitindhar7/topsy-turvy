@@ -118,17 +118,12 @@ public class Lobby extends Activity {
 
 	            // Get the device MAC address, which is the last 17 chars in the View
 	            String address = ((TextView) v).getText().toString().substring(0, 17);
-	            
-	            // Get the BLuetoothDevice object
-	            BluetoothDevice device = bBluetoothAdapter.getRemoteDevice(address);
-	            
-	            // Attempt to connect to the device
-	            mService.connect(device);
-	            if (mService.getState() == BluetoothService.STATE_CONNECTED) {
-	            	Intent multiPlayerGame = new Intent(Lobby.this, Lobby.class);
-	            	multiPlayerGame.putExtra("activePlayer", activePlayer);
-					startActivityForResult(multiPlayerGame, 0);
-	            }
+
+            	Intent multiPlayerGame = new Intent(Lobby.this, MultiPlayer.class);
+            	multiPlayerGame.putExtra("activePlayer", activePlayer);
+            	multiPlayerGame.putExtra("address", address);
+            	multiPlayerGame.putExtra("role", "host");
+				startActivityForResult(multiPlayerGame, 0);
 	        }
 	    });
 	    
@@ -189,8 +184,6 @@ public class Lobby extends Activity {
 	public synchronized void onResume() {
 		super.onResume();
 		
-		Log.i(TAG, "onResume");
-		
 		if (mService != null) {
             // Only if the state is STATE_NONE, do we know that we haven't started already
             if (mService.getState() == BluetoothService.STATE_NONE) {
@@ -201,9 +194,6 @@ public class Lobby extends Activity {
 	}
 	
 	private void setupService() {
-		
-		Log.i(TAG, "setupService");
-
 		mService = new BluetoothService(this, mHandler);
 	}
 	
@@ -218,9 +208,6 @@ public class Lobby extends Activity {
 	}
 	
 	private void ensureDiscoverable() {
-		
-		Log.i(TAG, "ensureDiscoverable");
-		
 		if (bBluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
             Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
             discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
@@ -230,10 +217,7 @@ public class Lobby extends Activity {
 	
 	private final Handler mHandler = new Handler() {
         @Override
-        public void handleMessage(Message msg) {
-        	
-        	Log.i(TAG, "handleMessage");
-        	
+        public void handleMessage(Message msg) {        	
             switch (msg.what) {
             case MESSAGE_STATE_CHANGE:
                 switch (msg.arg1) {
@@ -255,7 +239,11 @@ public class Lobby extends Activity {
                 break;
             case MESSAGE_DEVICE_NAME:
                 mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
-                Toast.makeText(getApplicationContext(), "Connected to " + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "Connected to " + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
+                Intent multiPlayerGame = new Intent(Lobby.this, MultiPlayer.class);
+            	multiPlayerGame.putExtra("activePlayer", activePlayer);
+            	multiPlayerGame.putExtra("role", "client");
+				startActivityForResult(multiPlayerGame, 0);
                 break;
             case MESSAGE_TOAST:
                 Toast.makeText(getApplicationContext(), msg.getData().getString(TOAST), Toast.LENGTH_SHORT).show();

@@ -4,12 +4,16 @@ import org.jbox2d.common.Vec2;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.os.Vibrator;
 import android.view.Display;
 import android.view.GestureDetector;
@@ -29,7 +33,7 @@ public class MultiPlayer extends Activity {
 
 	private final int SCOREBOARD_RESULT = 0;
 	
-	private TopsyTurvyGLSurfaceView mGLView;
+	private MultiPlayerGLSurfaceView mGLView;
 	private GestureDetector gestureDetector;
 	private View.OnTouchListener gestureListener;
 	private Vibrator vibrator;
@@ -41,28 +45,49 @@ public class MultiPlayer extends Activity {
 	private int level;
 	private int score = 0;
 	private String activePlayer;
+	private String role;
+	private String address = null;
 	
 	// Create database instance
 	public TopsyTurvyDbAdapter dbAdapter;
 	public AlertDialog.Builder builder;
 	public AlertDialog alert;
 	
+	// Local Bluetooth adapter
+    private BluetoothAdapter bBluetoothAdapter = null;
+    private BluetoothService mService = null;
+    private BluetoothDevice device;
+	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
+		
 		activePlayer	= getIntent().getStringExtra("activePlayer");
-		level			= getIntent().getIntExtra("level", 1);
+		role			= getIntent().getStringExtra("role");
+		address			= getIntent().getStringExtra("address");
+		
 		dbAdapter		= new TopsyTurvyDbAdapter(this);
 		dbAdapter.open();
+		
+		bBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+	    
+	    // If the adapter is null, then Bluetooth is not supported
+        if (bBluetoothAdapter == null) {
+            Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
+            finish();
+        }
+        
+        // Get the BLuetoothDevice object
+        if (role.equals("host"))
+        	device = bBluetoothAdapter.getRemoteDevice(address);
 		
 		// Get services
 		vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
 		display = ((WindowManager)getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
 
         // Create GLSurfaceView with sensors
-		mGLView = new TopsyTurvyGLSurfaceView(this, vibrator, (SensorManager) getSystemService(SENSOR_SERVICE), display, this, level);
+		mGLView = new MultiPlayerGLSurfaceView(this, vibrator, (SensorManager) getSystemService(SENSOR_SERVICE), display, this, level);
 
 		// Create gesture detector
 		gestureDetector = new GestureDetector(new MyGestureDetector());
@@ -145,6 +170,9 @@ public class MultiPlayer extends Activity {
 	               }
 	           });
 	    alert = builder.create();
+	    
+	    if (mService == null)
+			setupService();
 	}
 	
 	@Override
@@ -222,6 +250,21 @@ public class MultiPlayer extends Activity {
 	        	break;
         }
     }
+	
+	private void setupService() {
+		if (role.equals("host"))
+			mService = new BluetoothService(this, mHandler);
+
+		// Attempt to connect to the device
+		if (role.equals("host"))
+	        mService.connect(device);
+	}
+	
+	private final Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {        	
+        }
+    };
 	
 	public void doVibrate(int seconds) {
 		vibrator.vibrate(seconds);

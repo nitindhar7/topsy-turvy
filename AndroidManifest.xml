@@ -50,8 +50,10 @@
 		<activity
 			android:name=".PlayerInfo"
 			android:screenOrientation="portrait"></activity>
-	<activity android:name=".MultiPlayer"></activity>
-</application>
+		<activity
+			android:name=".MultiPlayer"
+			android:screenOrientation="portrait"></activity>
+	</application>
 	<uses-sdk
 		android:minSdkVersion="7" />
 	<uses-permission

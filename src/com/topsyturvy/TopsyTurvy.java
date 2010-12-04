@@ -68,7 +68,7 @@ public class TopsyTurvy extends Activity implements OnClickListener {
         
         //Background Music
         MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.backgroundmusic);
-        mp.start();
+        //mp.start();
         
         // UI
         mainMenuSinglePlayerButton 	= (Button)findViewById(R.id.mainMenuSinglePlayer);
