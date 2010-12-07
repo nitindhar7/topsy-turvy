@@ -22,15 +22,19 @@ public class CollisionContactListener implements ContactListener {
 	};
 	
 	public void add(ContactPoint cpoint) {
-		Cx = cpoint.position.x;
-		Cy = cpoint.position.y;
+		float vel = (Math.abs(cpoint.velocity.x) + Math.abs(cpoint.velocity.y))/2;
+		
+		Cx = Math.abs(cpoint.position.x);
+		Cy = Math.abs(cpoint.position.y);
+		
 		mediaPlayer = MediaPlayer.create(mContext, R.raw.collision1);
 		mediaPlayer.start();
-		vibrator.vibrate(55);
+
+		vibrator.vibrate((long)vel*10);
 	}
 
 	public void persist(ContactPoint cpoint) {
-		vibrator.vibrate(55);
+		vibrator.vibrate(5);
 	}
 
 	public void remove(ContactPoint cpoint) {

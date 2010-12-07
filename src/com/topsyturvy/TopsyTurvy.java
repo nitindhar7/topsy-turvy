@@ -28,6 +28,7 @@
 package com.topsyturvy;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.media.MediaPlayer;
@@ -54,6 +55,7 @@ public class TopsyTurvy extends Activity implements OnClickListener {
 	private Button mainMenuSinglePlayerButton;
 	private Button mainMenuMultiPlayerButton;
 	private Button mainMenuSettingsButton;
+	private ProgressDialog dialog;
 	
 	// Return values
 	private int SINGLEPLAYER_RESULT;
@@ -126,6 +128,7 @@ public class TopsyTurvy extends Activity implements OnClickListener {
 	}
 
     public void onClick(View src) {
+    	
 		switch(src.getId()) {
 			case R.id.mainMenuSinglePlayer:
 				if (activePlayer == null)
@@ -163,6 +166,7 @@ public class TopsyTurvy extends Activity implements OnClickListener {
     }
     
     public boolean onContextItemSelected(MenuItem item) {
+    	dialog = ProgressDialog.show(TopsyTurvy.this, "", "Loading. Please wait...", true);
     	Intent singlePlayerGame;
     	
         switch(item.getItemId()) {
@@ -199,6 +203,7 @@ public class TopsyTurvy extends Activity implements OnClickListener {
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         
+        dialog.cancel();
         int score = -1;
 
         if (dbAdapter.state == 0)
@@ -210,6 +215,8 @@ public class TopsyTurvy extends Activity implements OnClickListener {
         
         switch (resultCode) {
 	        case 10:
+	        	MediaPlayer winSound = MediaPlayer.create(getApplicationContext(), R.raw.win);
+	        	winSound.start();
 	        	Toast.makeText(getApplicationContext() , "YOU WIN!", Toast.LENGTH_LONG).show();
 	        	Intent win = new Intent(TopsyTurvy.this, Score.class);
 	        	win.putExtra("score", score);
@@ -223,8 +230,8 @@ public class TopsyTurvy extends Activity implements OnClickListener {
 	        	startActivity(timeOver);
 	        	break;
 	        case 12:
-	        	MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.explosion);
-	        	mediaPlayer.start();
+	        	MediaPlayer fallSound = MediaPlayer.create(getApplicationContext(), R.raw.explosion);
+	        	fallSound.start();
 	        	Toast.makeText(getApplicationContext() , "YOU FELL!!!!!", Toast.LENGTH_LONG).show();
 	        	Intent fell = new Intent(TopsyTurvy.this, Score.class);
 	        	fell.putExtra("score", score);

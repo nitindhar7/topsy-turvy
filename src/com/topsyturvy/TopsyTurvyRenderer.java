@@ -259,8 +259,8 @@ class TopsyTurvyRenderer implements GLSurfaceView.Renderer {
 		gl.glTexParameterx(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S, GL10.GL_REPEAT);
 		gl.glTexParameterx(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_T, GL10.GL_REPEAT);
 
-		gBackground.loadTexture(gl, mContext, R.drawable.table2);
-		gTable.loadTexture(gl, mContext, R.drawable.newtable);
+		gBackground.loadTexture(gl, mContext, R.drawable.table4);
+		gTable.loadTexture(gl, mContext, R.drawable.table1);
 		gTop.loadTexture(gl, mContext, R.drawable.top);
 		
 		if(game_level == 3) {

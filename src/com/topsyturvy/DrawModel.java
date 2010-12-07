@@ -3,6 +3,7 @@ package com.topsyturvy;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
 import javax.microedition.khronos.opengles.GL10;
@@ -12,7 +13,7 @@ import org.jbox2d.common.Vec2;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.opengl.GLUtils;
+import android.util.Log;
 import android.view.Display;
 
 public class DrawModel {
@@ -60,7 +61,11 @@ public class DrawModel {
 		gl.glBindTexture(GL10.GL_TEXTURE_2D, mTexture[0]);
 		Bitmap bitmap;
 		bitmap = BitmapFactory.decodeResource(mContext.getResources(), mTex);
-		GLUtils.texImage2D(GL10.GL_TEXTURE_2D, 0, bitmap, 0);
+		//gl.glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels)
+		Log.i("SM", "bitmap width: " +  bitmap.getWidth());
+		Log.i("SM", "bitmap height: " +  bitmap.getHeight());
+		gl.glTexImage2D(GL10.GL_TEXTURE_2D, 0, GL10.GL_RGBA, bitmap.getWidth(), bitmap.getHeight(), 0, GL10.GL_RGBA, GL10.GL_UNSIGNED_BYTE, extract(bitmap));
+		//GLUtils.texImage2D(GL10.GL_TEXTURE_2D, 0, bitmap, 0);
 		bitmap.recycle();
 		gl.glTexParameterx(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MIN_FILTER, GL10.GL_LINEAR);
 		gl.glTexParameterx(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MAG_FILTER, GL10.GL_LINEAR);
@@ -109,18 +114,41 @@ public class DrawModel {
 		gl.glPopMatrix();
 	}
 	
-	public Vec2 getPosition()
-	{
+	public Vec2 getPosition() {
 		return this.position;
 	}
 	
-	public void setPosition(float x, float y, Display display)
-	{
+	public void setPosition(float x, float y, Display display) {
 		this.position = toPhysicsCoords(x, y, display);
 	}
 	
-	public Vec2 toPhysicsCoords(float gestureX, float gestureY, Display display)
-	{
+	public Vec2 toPhysicsCoords(float gestureX, float gestureY, Display display) {
 		return new Vec2((20*gestureX)/display.getWidth() - 10, 20 - ((40 * gestureY)/display.getHeight()));
 	}
+	
+	private static ByteBuffer extract(Bitmap bmp) { 
+		ByteBuffer bb = ByteBuffer.allocateDirect(bmp.getHeight() * bmp.getWidth() * 4); 
+		bb.order(ByteOrder.BIG_ENDIAN); 
+		IntBuffer ib = bb.asIntBuffer(); 
+		// Convert ARGB -> RGBA 
+		for (int y = bmp.getHeight() - 1; y > -1; y--) 
+		{ 
+	
+		for (int x = 0; x < bmp.getWidth(); x++) 
+		{ 
+		int pix = bmp.getPixel(x, bmp.getHeight() - y - 1); 
+		int alpha = ((pix >> 24) & 0xFF); 
+		int red = ((pix >> 16) & 0xFF); 
+		int green = ((pix >> 8) & 0xFF); 
+		int blue = ((pix) & 0xFF); 
+	
+		// Make up alpha for interesting effect 
+	
+		//ib.put(red << 24 | green << 16 | blue << 8 | ((red + blue + green) / 3)); 
+		ib.put(red << 24 | green << 16 | blue << 8 | alpha); 
+		} 
+		} 
+		bb.position(0); 
+		return bb; 
+	} 
 }

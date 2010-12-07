@@ -95,12 +95,14 @@ public final class R {
         public static final int switch_profile=0x7f02004e;
         public static final int switch_profile_list=0x7f02004f;
         public static final int table=0x7f020050;
-        public static final int table2=0x7f020051;
-        public static final int table3=0x7f020052;
-        public static final int top=0x7f020053;
-        public static final int top1=0x7f020054;
-        public static final int top2=0x7f020055;
-        public static final int top3=0x7f020056;
+        public static final int table1=0x7f020051;
+        public static final int table2=0x7f020052;
+        public static final int table3=0x7f020053;
+        public static final int table4=0x7f020054;
+        public static final int top=0x7f020055;
+        public static final int top1=0x7f020056;
+        public static final int top2=0x7f020057;
+        public static final int top3=0x7f020058;
     }
     public static final class id {
         public static final int ImageView01=0x7f070009;
@@ -182,8 +184,10 @@ public final class R {
     }
     public static final class raw {
         public static final int backgroundmusic=0x7f040000;
-        public static final int collision1=0x7f040001;
-        public static final int explosion=0x7f040002;
+        public static final int bounce=0x7f040001;
+        public static final int collision1=0x7f040002;
+        public static final int explosion=0x7f040003;
+        public static final int win=0x7f040004;
     }
     public static final class string {
         public static final int app_name=0x7f05000d;
