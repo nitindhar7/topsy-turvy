@@ -32,10 +32,7 @@ Email: nitindhar7@yahoo.com
 
 LICENSE
 -------
-Copyright (C) 2010 Topsy-Turvy<br/>
-Nitin Dhar (nitindhar7@yahoo.com)<br/>
-Mayank Jain (mjain01@students.poly.edu)<br/>
-Chintan Jain (cjain01@students.poly.edu)<br/>
+Copyright (C) 2010 Topsy-Turvy Nitin Dhar, Chintan Jain and Mayank Jain
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of<br/> 
 this software and associated documentation files (the "Software"), to deal in<br/> 
