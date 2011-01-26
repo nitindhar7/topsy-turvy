@@ -22,6 +22,11 @@ public class TopsyTurvyDbAdapter {
     public static final String KEY_SOUND			= "sound";
     public static final String KEY_VIBRATION		= "vibration";
 
+    // Levels table fields
+    public static final String KEY_NUMBER			= "number";
+    public static final String KEY_HIGHSCORE		= "high_score";
+    public static final String KEY_BESTTIME			= "best_time";
+    
     // DB specific
     private static final String DATABASE_NAME		= "topsy_turvy";
     private static final int DATABASE_VERSION		= 2;
@@ -29,6 +34,8 @@ public class TopsyTurvyDbAdapter {
     // Table names
     public static final String DATABASE_SESSIONS_TABLE	= "sessions";
     public static final String DATABASE_PLAYERS_TABLE	= "players";
+    public static final String DATABASE_LEVELS_TABLE	= "levels";
+    
 
     private DatabaseHelper dbHelper;
     private SQLiteDatabase db;
@@ -48,6 +55,12 @@ public class TopsyTurvyDbAdapter {
 															  KEY_GAMESPLAYED + " INTEGER DEFAULT 0 NOT NULL, " +
 															  KEY_SOUND		  + " INTEGER DEFAULT 1 NOT NULL, " +
 															  KEY_VIBRATION	  + " INTEGER DEFAULT 1 NOT NULL);";
+    
+    // Levels table creation
+    private static final String DATABASE_LEVELS_CREATE		= "CREATE TABLE " + DATABASE_LEVELS_TABLE + " (" +
+														      KEY_NUMBER	  + " INTEGER PRIMARY KEY, " +
+														      KEY_BESTTIME	  + " INTEGER DEFAULT 0 NOT NULL, " +
+														      KEY_HIGHSCORE	  + " INTEGER DEFAULT 0 NOT NULL);";
 	
 	private static class DatabaseHelper extends SQLiteOpenHelper {
 		DatabaseHelper(Context context) {
@@ -58,12 +71,14 @@ public class TopsyTurvyDbAdapter {
         public void onCreate(SQLiteDatabase db) {
             db.execSQL(DATABASE_SESSIONS_CREATE);
             db.execSQL(DATABASE_PLAYERS_CREATE);
+            db.execSQL(DATABASE_LEVELS_CREATE);
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             db.execSQL("DROP TABLE IF EXISTS " + DATABASE_SESSIONS_CREATE);
             db.execSQL("DROP TABLE IF EXISTS " + DATABASE_PLAYERS_CREATE);
+            db.execSQL("DROP TABLE IF EXISTS " + DATABASE_LEVELS_CREATE);
             onCreate(db);
         }
 	}
@@ -123,6 +138,15 @@ public class TopsyTurvyDbAdapter {
         	return -1;
     }
     
+    public int create(int level, int bestTime, int highScore) {
+        ContentValues initialValues = new ContentValues();
+        initialValues.put(KEY_NUMBER, level);
+        initialValues.put(KEY_BESTTIME, bestTime);
+        initialValues.put(KEY_HIGHSCORE, highScore);
+
+        return (int)db.insert(DATABASE_SESSIONS_TABLE, null, initialValues);
+    }
+    
     /**
      * Return rows with given condition
      * 
@@ -140,6 +164,11 @@ public class TopsyTurvyDbAdapter {
     	}
     	else if (table.equals(DATABASE_PLAYERS_TABLE)) {
     		cursor = db.query(DATABASE_PLAYERS_TABLE, new String[] {KEY_NAME, KEY_TOPSCORE, KEY_TOTALSCORE, KEY_GAMESPLAYED, KEY_SOUND, KEY_VIBRATION}, condition, null, null, null, null, null);
+    		cursor.moveToFirst();
+    		return cursor;
+    	}
+    	else if (table.equals(DATABASE_LEVELS_TABLE)) {
+    		cursor = db.query(DATABASE_LEVELS_TABLE, new String[] {KEY_NUMBER, KEY_BESTTIME, KEY_HIGHSCORE}, condition, null, null, null, null, null);
     		cursor.moveToFirst();
     		return cursor;
     	}
@@ -164,6 +193,11 @@ public class TopsyTurvyDbAdapter {
     	}
     	else if (table.equals(DATABASE_PLAYERS_TABLE)) {
     		cursor = db.query(DATABASE_PLAYERS_TABLE, new String[] {KEY_NAME, KEY_TOPSCORE, KEY_TOTALSCORE, KEY_GAMESPLAYED, KEY_SOUND, KEY_VIBRATION}, condition, null, null, null, order, null);
+    		cursor.moveToFirst();
+    		return cursor;
+    	}
+    	else if (table.equals(DATABASE_LEVELS_TABLE)) {
+    		cursor = db.query(DATABASE_LEVELS_TABLE, new String[] {KEY_NUMBER, KEY_BESTTIME, KEY_HIGHSCORE}, condition, null, null, null, order, null);
     		cursor.moveToFirst();
     		return cursor;
     	}
@@ -215,6 +249,17 @@ public class TopsyTurvyDbAdapter {
 		return db.update(DATABASE_PLAYERS_TABLE, args, KEY_NAME + "='" + oldName + "'", null);
     }
     
+    public int update(int level, int bestTime, int highScore) {
+        ContentValues args = new ContentValues();
+
+        if (bestTime != -1)
+        	args.put(KEY_BESTTIME, bestTime);
+        if (highScore != -1)
+        	args.put(KEY_HIGHSCORE, highScore);
+
+		return db.update(DATABASE_LEVELS_TABLE, args, KEY_NUMBER + "=" + level, null);
+    }
+    
     /**
      * Delete record in table with the given condition
      * 
@@ -237,8 +282,10 @@ public class TopsyTurvyDbAdapter {
     	
     	if (table.equals(DATABASE_SESSIONS_TABLE))
     		cursor = db.query(DATABASE_SESSIONS_TABLE, new String[] {KEY_ID}, null, null, null, null, null);
-    	else if (table.equals("player"))
+    	else if (table.equals(DATABASE_PLAYERS_TABLE))
     		cursor = db.query(DATABASE_PLAYERS_TABLE, new String[] {KEY_NAME}, null, null, null, null, null);
+    	else if (table.equals(DATABASE_LEVELS_TABLE))
+    		cursor = db.query(DATABASE_LEVELS_TABLE, new String[] {KEY_NUMBER}, null, null, null, null, null);
     	else
     		return -1;
     	

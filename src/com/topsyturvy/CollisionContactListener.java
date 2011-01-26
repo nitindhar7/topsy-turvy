@@ -30,7 +30,7 @@ public class CollisionContactListener implements ContactListener {
 		mediaPlayer = MediaPlayer.create(mContext, R.raw.collision1);
 		mediaPlayer.start();
 
-		vibrator.vibrate((long)vel*10);
+		vibrator.vibrate((long)vel*5);
 	}
 
 	public void persist(ContactPoint cpoint) {

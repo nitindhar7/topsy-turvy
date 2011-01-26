@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_height="fill_parent"
+	android:layout_width="fill_parent"
+	android:orientation="vertical"
+	android:background="@drawable/full_bg3">
+	<TextView
+		android:layout_height="wrap_content"
+		android:layout_width="fill_parent"
+		android:id="@+id/levelsLabel"
+		android:background="@drawable/levels_menu_label"
+		android:layout_marginBottom="20dp"
+		android:minHeight="60dp"></TextView>
+	<GridView
+		android:id="@+id/levelsGrid"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:columnWidth="120dp"
+		android:numColumns="auto_fit"
+		android:verticalSpacing="20dp"
+		android:horizontalSpacing="10dp"
+		android:stretchMode="columnWidth"
+		android:gravity="center" />
+</LinearLayout>
