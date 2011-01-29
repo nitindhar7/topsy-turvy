@@ -3,7 +3,6 @@ package com.topsyturvy;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -17,7 +16,6 @@ public class TopsyTurvy extends Activity implements OnClickListener {
     // DB
 	private TopsyTurvyDbAdapter dbAdapter;
 	private String activePlayer;
-	private MediaPlayer mediaPlayer;
 	
 	// UI
 	private Button mainMenuSinglePlayerButton;
@@ -33,10 +31,6 @@ public class TopsyTurvy extends Activity implements OnClickListener {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.main);
-        
-        //Background Music
-        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.backgroundmusic);
-        mp.start();
         
         // UI
         mainMenuSinglePlayerButton 	= (Button)findViewById(R.id.mainMenuSinglePlayer);
@@ -64,9 +58,6 @@ public class TopsyTurvy extends Activity implements OnClickListener {
 		
 		if (dbAdapter.state == 0)
 			dbAdapter.open();
-		
-		if (activePlayer != null)
-			Toast.makeText(getApplicationContext() , "Hi, " + activePlayer + "!", Toast.LENGTH_LONG).show();
 	}
     
     @Override
@@ -84,12 +75,6 @@ public class TopsyTurvy extends Activity implements OnClickListener {
 	public void onBackPressed() {
     	dbAdapter.close();
     	activePlayer = null;
-    	
-    	if (mediaPlayer != null) {
-	    	mediaPlayer.release();
-	    	mediaPlayer = null;
-    	}
-    	
 		finish();
 	}
 
