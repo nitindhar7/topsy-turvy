@@ -156,6 +156,7 @@ public class Settings extends Activity implements OnClickListener, OnTouchListen
 				break;
 			case R.id.settingsMenuAbout:
 				//TODO: about section
+				Toast.makeText(getApplicationContext() , "Developed by: Nitin Dhar", Toast.LENGTH_SHORT).show();
 				break;
 		}
 	}

@@ -7,12 +7,14 @@ import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class Levels extends Activity {
 	
@@ -38,6 +40,7 @@ public class Levels extends Activity {
         activePlayer = getIntent().getStringExtra("activePlayer");
         
         // UI
+        TextView backButton = (TextView) findViewById(R.id.backButton);
         GridView gridview = (GridView) findViewById(R.id.levelsGrid);
         gridview.setAdapter(new LevelsImageAdapter(this));
         gridview.setNumColumns(3);
@@ -53,13 +56,17 @@ public class Levels extends Activity {
             	startActivityForResult(singlePlayerGame, SINGLEPLAYER_RESULT);
             }
         });
+        
+        backButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+            	onBackPressed();
+            } 
+        });
 	} 
 	
 	@Override
 	public void onBackPressed() {
     	dbAdapter.close();
-    	activePlayer = null;
-
 		finish();
 	}
 	

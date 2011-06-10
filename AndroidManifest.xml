@@ -9,8 +9,9 @@
 		android:label="@string/app_name"
 		android:debuggable="true">
 		<activity
-			android:name=".SplashScreen"
+			android:name=".TopsyTurvy"
 			android:screenOrientation="portrait"
+			android:label="@string/app_name"
 			android:launchMode="singleTask">
 			<intent-filter>
 				<action
@@ -18,11 +19,6 @@
 				<category
 					android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
-		</activity>
-		<activity
-			android:name=".TopsyTurvy"
-			android:label="@string/app_name"
-			android:screenOrientation="portrait">
 		</activity>
 		<activity
 			android:name=".SinglePlayer"

@@ -3,8 +3,10 @@ package com.topsyturvy;
 import android.app.Activity;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.View.OnClickListener;
 import android.widget.TextView;
 
 public class Score extends Activity {
@@ -16,6 +18,7 @@ public class Score extends Activity {
 	private TextView playerScore;
 	private TextView playerTopScore;
 	private TextView playerAverageScore;
+	private TextView backButton;
 	private int score;
 	private String activePlayer;
 	
@@ -33,9 +36,16 @@ public class Score extends Activity {
         playerScore = (TextView)findViewById(R.id.playerScore);
         playerTopScore = (TextView)findViewById(R.id.playerTopScore);
         playerAverageScore = (TextView)findViewById(R.id.playerAverageScore);
+        backButton = (TextView) findViewById(R.id.backButton);
         
         score = getIntent().getIntExtra("score", -1);
         activePlayer = getIntent().getStringExtra("activePlayer");
+        
+        backButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+            	onBackPressed();
+            } 
+        });
 	}
 	
 	@Override
